@@ -13,6 +13,14 @@ import {
   updateProjectRepoStats,
 } from "@/data-access/project";
 
+import { generateProjectAlternatives } from "@/ai/alternatives";
+import {
+  createAlternative,
+  getAlternativeByName,
+  getAlternatives,
+  updateProjectAlternatives,
+} from "@/data-access/alternative";
+import { generateScreenshot } from "@/lib/image";
 import { getGitHubStats } from "@/services/github";
 import { inngest } from "@/services/inngest";
 import { CreateProjectForm } from "@/types/project";
@@ -74,6 +82,7 @@ export const handleProjectCreated = inngest.createFunction(
       await updateLicenseProjectUseCase(repoStats.license.key, project.id);
     });
 
+    // * CLAUDE SONNET POWERED
     const createProjectContent = step.run(
       "create-project-content",
       async () => {
@@ -92,6 +101,7 @@ export const handleProjectCreated = inngest.createFunction(
       }
     );
 
+    // * CLAUDE SONNET POWERED
     const createProjectCategories = step.run(
       "create-project-categories",
       async () => {
@@ -108,16 +118,85 @@ export const handleProjectCreated = inngest.createFunction(
           categories.map((category) => category.name)
         );
 
-        const { categories: assignedCategories, categoriesToAdd } =
+        const { categories: assignedCategoryNames, categoriesToAdd } =
           extractJsonFromResponse(projectCategories);
+
+        // Map assigned category names to their IDs
+        const assignedCategoryIds = assignedCategoryNames
+          .map((name: string) => categories.find((c) => c.name === name)?.id)
+          .filter((id: number | undefined): id is number => id !== undefined);
 
         const categoriesToAddIds = await Promise.all(
           categoriesToAdd.map((category: string) => createCategory(category))
+        ).then((categories) => categories.map((category) => category.id));
+
+        const allCategoryIds = [...assignedCategoryIds, ...categoriesToAddIds];
+
+        await updateProjectCategories(project.id, allCategoryIds);
+      }
+    );
+
+    // * CLAUDE SONNET POWERED
+    const createProjectAlternatives = step.run(
+      "create-project-alternatives",
+      async () => {
+        const alternatives = await getAlternatives();
+
+        const project = await getProject(slug);
+
+        if (!project) {
+          throw new Error("Project not found");
+        }
+
+        const projectAlternatives = await generateProjectAlternatives(
+          name,
+          alternatives.map((alternative) => alternative.name)
         );
 
-        const allCategories = [...assignedCategories, ...categoriesToAddIds];
+        const { alternatives: assignedAlternativeNames, alternativesToAdd } =
+          extractJsonFromResponse(projectAlternatives);
 
-        await updateProjectCategories(project.id, allCategories);
+        // Map assigned alternative names to their IDs
+        const assignedAlternativeIds = assignedAlternativeNames
+          .map((name: string) => alternatives.find((a) => a.name === name)?.id)
+          .filter((id: number | undefined): id is number => id !== undefined);
+
+        const alternativesToAddIds = await Promise.all(
+          alternativesToAdd.map(
+            async (alternative: { name: string; url: string }) => {
+              const existing = await getAlternativeByName(alternative.name);
+
+              if (existing) {
+                return existing.id;
+              }
+
+              const created = await createAlternative(
+                alternative.name,
+                alternative.url
+              );
+
+              if (!created) {
+                throw new Error("Failed to create alternative");
+              }
+
+              return created.id;
+            }
+          )
+        );
+
+        const allAlternativeIds = [
+          ...assignedAlternativeIds,
+          ...alternativesToAddIds,
+        ];
+
+        await updateProjectAlternatives(project.id, allAlternativeIds);
+      }
+    );
+
+    const createProjectScreenshot = step.run(
+      "generate-screenshot",
+      async () => {
+        await generateScreenshot(url, slug);
       }
     );
 
@@ -126,6 +205,8 @@ export const handleProjectCreated = inngest.createFunction(
       updateLicense,
       createProjectContent,
       createProjectCategories,
+      createProjectAlternatives,
+      createProjectScreenshot,
     ]);
 
     return {

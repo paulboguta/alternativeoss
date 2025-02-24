@@ -17,5 +17,9 @@ export const updateLicenseProjectUseCase = async (
     });
   }
 
+  if (!license) {
+    throw new Error("Failed to create license");
+  }
+
   await updateLicenseProjectTable(license.id, projectId);
 };

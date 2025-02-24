@@ -1,4 +1,10 @@
 const nextConfig = {
+  experimental: {
+    // TODO: Caching in 0.2
+    // useCache: true,
+    // ppr: true,
+    // dynamicIO: true,
+  },
   images: {
     remotePatterns: [
       {
@@ -6,17 +12,20 @@ const nextConfig = {
         hostname: "www.google.com",
         pathname: "/s2/favicons/**",
       },
-      // Allow direct favicon URLs from any domain
       {
         protocol: "https",
         hostname: "**",
         pathname: "/favicon.{ico,png}",
       },
-      // Allow favicon in assets directory
       {
         protocol: "https",
         hostname: "**",
         pathname: "/assets/favicon.{ico,png}",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.alternativeoss.com",
+        pathname: "/**",
       },
     ],
   },

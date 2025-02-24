@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { CommandMenu } from "@/components/command-menu";
 import { Icons } from "@/components/icons";
 import { Nav } from "@/components/layout/nav";
 import { Button } from "@/components/ui/button";
@@ -14,17 +13,20 @@ export function Header() {
         <div className="flex h-14 items-center">
           <Nav />
           <div className="flex flex-1 items-center justify-between gap-2 md:justify-end ">
-            <div className="w-full flex-1 md:w-auto md:flex-none">
-              <CommandMenu />
-            </div>
+            {/* // ** SEARCH IN 0.3 ** */}
+            {/* <div className="w-full flex-1 md:w-auto md:flex-none">
+              <CommandMenu /  >
+            </div> */}
             <nav className="flex items-center gap-0.5">
+              {/* // ** OPEN SOURCE REPO IN 1.0 */}
+              {/*
               <Button
                 asChild
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 px-0"
               >
-                <Link
+                 <Link
                   href={websiteConfig.links.github}
                   target="_blank"
                   rel="noreferrer"
@@ -33,6 +35,24 @@ export function Header() {
                   <span className="sr-only">GitHub</span>
                 </Link>
               </Button>
+               */}
+
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 px-0 fill-white"
+              >
+                <Link
+                  href={websiteConfig.links.twitterPawel}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Icons.twitter className="h-4 w-4" />
+                  <span className="sr-only">Twitter</span>
+                </Link>
+              </Button>
+
               <Button
                 asChild
                 variant="outline"

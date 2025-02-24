@@ -13,9 +13,12 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "production"]),
     CLERK_SECRET_KEY: z.string().min(1),
     FIRECRAWL_API_KEY: z.string().min(1),
+    SCREENSHOTONE_ACCESS_KEY: z.string().min(1),
+    SCREENSHOTONE_SECRET_KEY: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
+    NEXT_PUBLIC_CDN_URL: z.string().min(1),
   },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
@@ -28,7 +31,10 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY,
+    SCREENSHOTONE_ACCESS_KEY: process.env.SCREENSHOTONE_ACCESS_KEY,
+    SCREENSHOTONE_SECRET_KEY: process.env.SCREENSHOTONE_SECRET_KEY,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_CDN_URL: process.env.NEXT_PUBLIC_CDN_URL,
   },
 });

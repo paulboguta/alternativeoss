@@ -8,12 +8,16 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+
+import { getLicense } from "@/data-access/license";
 import {
   getOtherCategoriesWithCount,
+  getProject,
+  getProjectAlternatives,
   getProjectCategoriesWithCount,
-} from "@/data-access/category";
-import { getLicense } from "@/data-access/license";
-import { getProject } from "@/data-access/project";
+  getProjects,
+} from "@/data-access/project";
+import { env } from "@/env";
 import { getFaviconUrl } from "@/lib/favicon";
 import { generateSlug } from "@/utils/slug";
 import { buildProjectUrl } from "@/utils/url";
@@ -31,44 +35,47 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-// Mock alternatives for now
-const alternatives = [
-  { name: "Loom", url: "https://loom.com" },
-  { name: "Screen Studio", url: "https://screen.studio" },
-  { name: "ScreenshotOne", url: "https://screenshotone.com/" },
-  { name: "Bandicam", url: "https://bandicam.com" },
-  { name: "CleanShot", url: "https://cleanshot.com" },
-];
+type Params = Promise<{ slug: string }>
 
-type Props = {
-  params: {
-    project: string;
-  };
-};
+export async function generateStaticParams() {
+  const projects = await getProjects();
 
-export default async function ProjectPage({ params }: Props) {
-  const awaitedParams = await params;
+  return projects.map((project) => ({
+    slug: project.slug,
+  }));
+}
 
-  const project = await getProject(awaitedParams.project);
+export default async function ProjectPage(props: {
+  params: Params
+}) {
+  const {slug} = await props.params;
+  
+  if (!slug) {
+    notFound();
+  }
+
+  const projectData = await getProject(slug);
 
   if (
-    !project ||
-    !project.id ||
-    !project.url ||
-    !project.repoUrl ||
-    !project.repoStars ||
-    !project.repoForks ||
-    !project.repoLastCommit ||
-    !project.features
+    !projectData ||
+    !projectData.id ||
+    !projectData.url ||
+    !projectData.repoUrl ||
+    !projectData.repoStars ||
+    !projectData.repoForks ||
+    !projectData.repoLastCommit ||
+    !projectData.features
   ) {
     notFound();
   }
 
-  const [projectCategories, otherCategories, license] = await Promise.all([
-    getProjectCategoriesWithCount(project.id),
-    getOtherCategoriesWithCount(project.id),
-    getLicense(project?.id),
-  ]);
+  const [projectCategories, otherCategories, projectAlternatives, license] =
+    await Promise.all([
+      getProjectCategoriesWithCount(projectData.id),
+      getOtherCategoriesWithCount(projectData.id),
+      getProjectAlternatives(projectData.id),
+      getLicense(projectData.id),
+    ]);
 
   return (
     <div className="relative min-h-screen">
@@ -79,23 +86,25 @@ export default async function ProjectPage({ params }: Props) {
             <div className="space-y-2 ">
               <h2 className="text-sm font-medium text-bg/60">Alternative to</h2>
               <div className="flex gap-x-1 flex-wrap w-full">
-                {alternatives.map((alt) => (
+                {projectAlternatives.map((alt) => (
                   <Link
-                    key={alt.name}
-                    href={`/alternatives/${generateSlug(alt.name)}`}
+                    key={alt.alternatives.id}
+                    href={`/alternatives/${generateSlug(
+                      alt.alternatives.name
+                    )}`}
                     className="flex items-center gap-1.5 group hover:bg-accent/50 rounded-md px-1.5 py-1 transition-colors w-fit"
                   >
                     <div className="flex items-center justify-center rounded-md ">
                       <Image
-                        src={getFaviconUrl(alt.url)}
-                        alt={`${alt.name} favicon`}
+                        src={getFaviconUrl(alt.alternatives.url || "")}
+                        alt={`${alt.alternatives.name} favicon`}
                         width={12}
                         height={12}
                         className="rounded-sm"
                       />
                     </div>
                     <span className="text-xs font-medium group-hover:text-foreground text-muted-foreground">
-                      {alt.name}
+                      {alt.alternatives.name}
                     </span>
                   </Link>
                 ))}
@@ -159,16 +168,16 @@ export default async function ProjectPage({ params }: Props) {
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbLink
-                    href="#"
+                    href="/"
                     className="inline-flex items-center gap-1.5"
                   >
                     <Command size={16} aria-hidden="true" />
-                    Open Source Tools
+                    Open Source Projects
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>{project.name}</BreadcrumbPage>
+                  <BreadcrumbPage>{projectData.name}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -176,23 +185,23 @@ export default async function ProjectPage({ params }: Props) {
               <div className="flex items-center gap-4">
                 <div className="flex p-1.5 items-center justify-center rounded-lg bg-zinc-300/10 border border-zinc-800">
                   <Image
-                    src={getFaviconUrl(project.url)}
-                    alt={`${project.name} favicon`}
+                    src={getFaviconUrl(projectData.url)}
+                    alt={`${projectData.name} favicon`}
                     width={32}
                     height={32}
                     className="rounded-sm"
                   />
                 </div>
-                <h1 className="text-3xl font-bold">{project.name}</h1>
+                <h1 className="text-3xl font-bold">{projectData.name}</h1>
               </div>
               <div className="flex gap-4">
                 <Button className="group" variant="secondary" asChild>
                   <Link
-                    href={buildProjectUrl(project)}
+                    href={buildProjectUrl(projectData)}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Visit {project.name}
+                    Visit {projectData.name}
                     <ArrowRightIcon
                       className="-me-1 opacity-60 transition-transform group-hover:translate-x-0.5"
                       size={16}
@@ -203,7 +212,7 @@ export default async function ProjectPage({ params }: Props) {
                 {/* Mobile only */}
                 <Button variant="outline" asChild className="lg:hidden">
                   <Link
-                    href={project.repoUrl}
+                    href={projectData.repoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -213,7 +222,7 @@ export default async function ProjectPage({ params }: Props) {
                 </Button>
               </div>
             </div>
-            <p className=" text-muted-foreground">{project.summary}</p>
+            <p className=" text-muted-foreground">{projectData.summary}</p>
 
             {/* Repository Stats - Mobile/Tablet */}
             <div className="lg:hidden rounded-lg border bg-card/50 p-6">
@@ -221,21 +230,21 @@ export default async function ProjectPage({ params }: Props) {
                 <div className="flex items-center gap-2">
                   <Star className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">
-                    {project.repoStars.toLocaleString()}
+                    {projectData.repoStars.toLocaleString()}
                   </span>
                   <span className="text-xs text-muted-foreground">stars</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <GitFork className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">
-                    {project.repoForks.toLocaleString()}
+                    {projectData.repoForks.toLocaleString()}
                   </span>
                   <span className="text-xs text-muted-foreground">forks</span>
                 </div>
                 {license?.licenses.name !== "other" && (
                   <div className="flex items-center gap-2">
                     <Scale className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">
+                    <span className="font-medium uppercase">
                       {license?.licenses.name}
                     </span>
                     <span className="text-xs text-muted-foreground">
@@ -246,15 +255,15 @@ export default async function ProjectPage({ params }: Props) {
                 <div className="flex items-center gap-2">
                   <Clock7 className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">
-                    Last commit {format(project.repoLastCommit, "MMM d, yyyy")}
+                    Last commit {format(projectData.repoLastCommit, "MMM d, yyyy")}
                   </span>
                 </div>
               </div>
             </div>
             <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted/30">
               <Image
-                src="/image.png"
-                alt={`${project.name} demo screenshot`}
+                src={`${env.NEXT_PUBLIC_CDN_URL}/${projectData.slug}.webp`}
+                alt={`${projectData.name} demo screenshot`}
                 fill
                 className="object-cover object-center"
                 priority
@@ -263,10 +272,10 @@ export default async function ProjectPage({ params }: Props) {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h2 className="text-2xl font-semibold tracking-tight">
-                  About {project.name}
+                  About {projectData.name}
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  {project.longDescription}
+                  {projectData.longDescription}
                 </p>
               </div>
               <div className="space-y-4">
@@ -274,7 +283,7 @@ export default async function ProjectPage({ params }: Props) {
                   Key Features
                 </h2>
                 <ul className="space-y-3 pl-4">
-                  {project.features.map((feature, index) => (
+                  {projectData.features.map((feature, index) => (
                     <li
                       key={index}
                       className="flex items-center gap-3 text-muted-foreground"
@@ -300,21 +309,21 @@ export default async function ProjectPage({ params }: Props) {
                 <div className="flex items-center gap-2">
                   <Star className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">
-                    {project.repoStars.toLocaleString()}
+                    {projectData.repoStars.toLocaleString()}
                   </span>
                   <span className="text-xs text-muted-foreground">stars</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <GitFork className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">
-                    {project.repoForks.toLocaleString()}
+                    {projectData.repoForks.toLocaleString()}
                   </span>
                   <span className="text-xs text-muted-foreground">forks</span>
                 </div>
                 {license?.licenses.name !== "other" && (
                   <div className="flex items-center gap-2">
                     <Scale className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">
+                    <span className="font-medium uppercase">
                       {license?.licenses.name}
                     </span>
                     <span className="text-xs text-muted-foreground">
@@ -325,7 +334,7 @@ export default async function ProjectPage({ params }: Props) {
                 <div className="flex items-center gap-2">
                   <Clock7 className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">
-                    Last commit {format(project.repoLastCommit, "MMM d, yyyy")}
+                    Last commit {format(projectData.repoLastCommit, "MMM d, yyyy")}
                   </span>
                 </div>
               </div>
@@ -333,7 +342,7 @@ export default async function ProjectPage({ params }: Props) {
 
             <Button variant="outline" size="lg" className="w-full " asChild>
               <Link
-                href={project.repoUrl}
+                href={projectData.repoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
               >

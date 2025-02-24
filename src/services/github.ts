@@ -11,6 +11,10 @@ export async function getGitHubStats(repoUrl: string) {
 
   const [owner, repo] = urlParts;
 
+  if (!owner || !repo) {
+    throw new Error("Invalid repository URL");
+  }
+
   const { data } = await githubClient.rest.repos.get({ owner, repo });
 
   const repoStats = {

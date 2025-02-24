@@ -1,6 +1,6 @@
 "use client";
 
-import { createProjectAction } from "@/app/dev/actions";
+import { createProjectAction } from "@/app/dev/create-project/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {

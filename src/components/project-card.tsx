@@ -32,7 +32,7 @@ export function ProjectCard({
 
   return (
     <Link href={`/${generateSlug(name)}`} className="block">
-      <div className="relative flex h-full flex-col rounded-lg border border-border/50 bg-card p-6 transition-colors hover:bg-accent/10">
+      <div className="relative flex h-full flex-col rounded-lg border border-border/50 bg-card p-6 hover:bg-muted/10 hover:ring-[3px] hover:border-ring/20 ring-ring/8 shadow-xs transition-all">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
             <h3 className="flex items-center gap-2 font-semibold leading-none tracking-tight">
@@ -62,7 +62,7 @@ export function ProjectCard({
             {license !== "other" && (
               <>
                 <Separator orientation="vertical" className="h-4" />
-                <span>{license}</span>
+                <span className="uppercase">{license}</span>
               </>
             )}
           </div>

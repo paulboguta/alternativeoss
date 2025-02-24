@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { categories, projectCategories } from "@/db/schema";
 import { generateSlug } from "@/utils/slug";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export const checkIfCategoryExists = async (name: string) => {
   const category = await db.query.categories.findFirst({
@@ -37,80 +37,9 @@ export const getCategory = async (slug: string) => {
 
 export const updateProjectCategories = async (
   projectId: number,
-  categories: { id: number; name: string }[]
+  categoriesIds: number[]
 ) => {
   await db
     .insert(projectCategories)
-    .values(
-      categories.map((category) => ({ projectId, categoryId: category.id }))
-    );
-};
-
-export const getProjectCategories = async (projectId: number) => {
-  const result = await db
-    .select()
-    .from(categories)
-    .innerJoin(
-      projectCategories,
-      eq(categories.id, projectCategories.categoryId)
-    )
-    .where(eq(projectCategories.projectId, projectId));
-
-  return result;
-};
-
-export const getProjectCategoriesWithCount = async (projectId: number) => {
-  const result = await db
-    .select({
-      categoryId: categories.id,
-      categoryName: categories.name,
-      count: sql<number>`(
-        SELECT COUNT(*)
-        FROM ${projectCategories}
-        WHERE ${projectCategories.categoryId} = ${categories.id}
-      )`.as("count"),
-    })
-    .from(categories)
-    .innerJoin(
-      projectCategories,
-      eq(categories.id, projectCategories.categoryId)
-    )
-    .where(eq(projectCategories.projectId, projectId));
-
-  return result.map(({ categoryId, categoryName, count }) => ({
-    categoryId,
-    categoryName,
-    count: Number(count),
-  }));
-};
-
-export const getOtherCategoriesWithCount = async (
-  projectId: number,
-  limit = 5
-) => {
-  const result = await db
-    .select({
-      categoryId: categories.id,
-      categoryName: categories.name,
-      count: sql<number>`(
-        SELECT COUNT(*)
-        FROM ${projectCategories}
-        WHERE ${projectCategories.categoryId} = ${categories.id}
-      )`.as("count"),
-    })
-    .from(categories)
-    .where(
-      sql`${categories.id} NOT IN (
-        SELECT ${projectCategories.categoryId}
-        FROM ${projectCategories}
-        WHERE ${projectCategories.projectId} = ${projectId}
-      )`
-    )
-    .limit(limit);
-
-  return result.map(({ categoryId, categoryName, count }) => ({
-    categoryId,
-    categoryName,
-    count: Number(count),
-  }));
+    .values(categoriesIds.map((categoryId) => ({ projectId, categoryId })));
 };

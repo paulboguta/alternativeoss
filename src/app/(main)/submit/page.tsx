@@ -5,34 +5,17 @@ import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { SubmitProjectInput } from "@/types/submission";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { toast } from "sonner";
 import { useServerAction } from "zsa-react";
 import { submitProject } from "./actions";
 
-type FormValues = {
-  name: string;
-  projectName: string;
-  email: string;
-  websiteUrl?: string;
-  repoLink: string;
-  description: string;
-};
-
-export const submitProjectSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  projectName: z.string().min(2, "Project name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  websiteUrl: z.string().url("Invalid website URL").optional(),
-  repoLink: z.string().url("Invalid repository URL"),
-  description: z.string().min(50, "Description must be at least 50 characters"),
-});
-
 export default function SubmitPage() {
-  const { execute: runAction, status } = useServerAction(submitProject);
+  const { execute, status } = useServerAction(submitProject);
   const isPending = status === "pending";
 
-  const form = useForm<FormValues>({
+  const form = useForm<SubmitProjectInput>({
     defaultValues: {
       name: "",
       projectName: "",
@@ -43,18 +26,22 @@ export default function SubmitPage() {
     },
   });
 
-  async function onSubmit(data: FormValues) {
+  async function onSubmit(data: SubmitProjectInput) {
     try {
-      const [result, error] = await runAction(data);
+      const [result, error] = await execute(data);
       if (error) throw error;
 
       if (result?.success) {
         form.reset();
-        // TODO: Show success toast
+        toast.success(result.message);
+      } else {
+        toast.error(
+          result?.message || "Failed to submit project. Please try again."
+        );
       }
     } catch (error) {
       console.error(error);
-      // TODO: Show error toast
+      toast.error("An unexpected error occurred. Please try again later.");
     }
   }
 
@@ -147,9 +134,7 @@ export default function SubmitPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">
-                Project Description (Optional)
-              </Label>
+              <Label htmlFor="description">Project Description</Label>
               <Textarea
                 id="description"
                 {...form.register("description")}

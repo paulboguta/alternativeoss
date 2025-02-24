@@ -38,18 +38,10 @@ export const projects = pgTable("projects", {
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
 });
 
-// Projects relations
 export const projectsRelations = relations(projects, ({ many }) => ({
   projectCategories: many(projectCategories),
   projectLicenses: many(projectLicenses),
-  // ** in 2.0:
-  //   projectAlternatives: many(projectAlternatives, {
-  //     relationName: "projectAlternatives",
-  //   }),
-  //   alternativeToProjects: many(projectAlternatives, {
-  //     relationName: "alternativeToProjects",
-  //   }),
-  //   projectExternalAlternatives: many(projectExternalAlternatives),
+  alternatives: many(projectAlternatives),
 }));
 
 export const submissions = pgTable("submissions", {
@@ -79,10 +71,16 @@ export const projectCategories = pgTable(
   {
     projectId: integer("project_id")
       .notNull()
-      .references(() => projects.id, { onDelete: "cascade" }),
+      .references(() => projects.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
     categoryId: integer("category_id")
       .notNull()
-      .references(() => categories.id, { onDelete: "cascade" }),
+      .references(() => categories.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
   },
   (table) => ({
     pk: primaryKey(table.projectId, table.categoryId),
@@ -116,10 +114,16 @@ export const licensesRelations = relations(licenses, ({ many }) => ({
 export const projectLicenses = pgTable("project_licenses", {
   projectId: integer("project_id")
     .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
+    .references(() => projects.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
   licenseId: integer("license_id")
     .notNull()
-    .references(() => licenses.id, { onDelete: "cascade" }),
+    .references(() => licenses.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
 });
 
 export const projectLicensesRelations = relations(
@@ -136,79 +140,48 @@ export const projectLicensesRelations = relations(
   })
 );
 
-// ** --- in 2.0:
+export const alternatives = pgTable("alternatives", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  summary: text("summary"),
+  description: text("description"),
+  url: text("url"),
+  logoUrl: text("logo_url"),
+  price: integer("price"),
+  pricingModel: text("pricing_model"),
+  isPaid: boolean("is_paid").default(true),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
+});
 
-// export const projectAlternatives = pgTable(
-//   "project_alternatives",
-//   {
-//     projectId: integer("project_id")
-//       .notNull()
-//       .references(() => projects.id, { onDelete: "cascade" }),
-//     alternativeProjectId: integer("alternative_project_id")
-//       .notNull()
-//       .references(() => projects.id, { onDelete: "cascade" }),
-//   },
-//   (table) => ({
-//     pk: primaryKey(table.projectId, table.alternativeProjectId),
-//   })
-// );
+export const projectAlternatives = pgTable(
+  "project_alternatives",
+  {
+    projectId: integer("project_id")
+      .notNull()
+      .references(() => projects.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    alternativeId: integer("alternative_id")
+      .notNull()
+      .references(() => alternatives.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+  },
+  (table) => ({
+    pk: primaryKey(table.projectId, table.alternativeId),
+  })
+);
 
-// export const projectAlternativesRelations = relations(
-//   projectAlternatives,
-//   ({ one }) => ({
-//     project: one(projects, {
-//       fields: [projectAlternatives.projectId],
-//       references: [projects.id],
-//       relationName: "projectAlternatives",
-//     }),
-//     alternativeProject: one(projects, {
-//       fields: [projectAlternatives.alternativeProjectId],
-//       references: [projects.id],
-//       relationName: "alternativeToProjects",
-//     }),
-//   })
-// );
+export const alternativesRelations = relations(alternatives, ({ many }) => ({
+  projects: many(projectAlternatives),
+}));
 
-// export const externalAlternatives = pgTable("external_alternatives", {
-//   id: serial("id").primaryKey(),
-//   name: text("name").notNull(),
-//   url: text("url").notNull(),
-//   description: text("description"),
-//   logoUrl: text("logo_url"),
-// });
-
-// export const externalAlternativesRelations = relations(
-//   externalAlternatives,
-//   ({ many }) => ({
-//     projectExternalAlternatives: many(projectExternalAlternatives),
-//   })
-// );
-
-// export const projectExternalAlternatives = pgTable(
-//   "project_external_alternatives",
-//   {
-//     projectId: integer("project_id")
-//       .notNull()
-//       .references(() => projects.id, { onDelete: "cascade" }),
-//     externalAlternativeId: integer("external_alternative_id")
-//       .notNull()
-//       .references(() => externalAlternatives.id, { onDelete: "cascade" }),
-//   },
-//   (table) => ({
-//     pk: primaryKey(table.projectId, table.externalAlternativeId),
-//   })
-// );
-
-// export const projectExternalAlternativesRelations = relations(
-//   projectExternalAlternatives,
-//   ({ one }) => ({
-//     project: one(projects, {
-//       fields: [projectExternalAlternatives.projectId],
-//       references: [projects.id],
-//     }),
-//     externalAlternative: one(externalAlternatives, {
-//       fields: [projectExternalAlternatives.externalAlternativeId],
-//       references: [externalAlternatives.id],
-//     }),
-//   })
-// );
+export const emails = pgTable("emails", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+});

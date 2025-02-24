@@ -1,8 +1,10 @@
 import { handleProjectCreated } from "@/functions/project-created";
+import { updateGitHubStats } from "@/functions/repo-stats";
+import { temp } from "@/functions/temp";
 import { inngest } from "@/services/inngest";
 import { serve } from "inngest/next";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [handleProjectCreated],
+  functions: [handleProjectCreated, updateGitHubStats, temp],
 });

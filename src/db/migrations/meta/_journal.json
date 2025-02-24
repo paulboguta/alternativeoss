@@ -22,6 +22,27 @@
       "when": 1740387827679,
       "tag": "0002_glorious_tempest",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1740390405601,
+      "tag": "0003_peaceful_roulette",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1740397754030,
+      "tag": "0004_wide_mandarin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1740414328469,
+      "tag": "0005_cloudy_lionheart",
+      "breakpoints": true
     }
   ]
 }

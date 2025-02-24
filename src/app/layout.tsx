@@ -1,9 +1,10 @@
-import { env } from "@/env";
+import Analytics from "@/components/analytics";
+import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
-import { OpenPanelComponent } from "@openpanel/nextjs";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,14 +28,9 @@ export default function RootLayout({
             inter.className
           )}
         >
-          <OpenPanelComponent
-            apiUrl="/api/op"
-            clientId={env.OPEN_PANEL_CLIENT_ID!}
-            trackScreenViews={true}
-            trackAttributes={true}
-            trackOutgoingLinks={true}
-          />
-          {children}
+          <Analytics />
+          <Toaster />
+          <NuqsAdapter>{children}</NuqsAdapter>
         </body>
       </html>
     </ClerkProvider>

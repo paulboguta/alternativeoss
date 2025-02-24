@@ -1,3 +1,4 @@
+import { EmailCapture } from "@/components/email/email-capture";
 import { ProjectCard } from "@/components/project-card";
 import {
   Breadcrumb,
@@ -7,26 +8,36 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { getProjectsByCategory } from "@/data-access/project";
+import { getAlternatives } from "@/data-access/alternative";
+import { getProjectsByAlternative } from "@/data-access/project";
+import { getFaviconUrl } from "@/lib/favicon";
 import { Command, HomeIcon } from "lucide-react";
+
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
-type Props = {
-  params: {
-    category: string;
-  };
-};
+type Params = Promise<{ slug: string }>
 
-export default async function CategoryPage({ params }: Props) {
-  const awaitedParams = await params;
+export async function generateStaticParams() {
+  const alternatives = await getAlternatives();
 
-  const { projects, category } = await getProjectsByCategory(
-    awaitedParams.category
-  );
+  return alternatives.map((alternative) => ({
+    slug: alternative.slug,
+  }));
+}
 
-  if (!projects) {
+export default async function AlternativePage(props: {
+  params: Params
+}) {
+  const {slug} = await props.params;
+
+  if (!slug) {
+    notFound();
+  }
+
+  const { projects, alternative } = await getProjectsByAlternative(slug);
+
+  if (!projects || !alternative) {
     notFound();
   }
 
@@ -46,43 +57,36 @@ export default async function CategoryPage({ params }: Props) {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink
-              href="/categories"
+              href="/alternatives"
               className="inline-flex items-center gap-1.5"
             >
               <Command size={16} aria-hidden="true" />
-              Project Categories
+              Alternatives
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{category.name}</BreadcrumbPage>
+            <BreadcrumbPage>{alternative.name}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       <section className="mx-auto flex flex-col gap-3  md:py-4 md:pb-8 lg:py-15 lg:pb-20">
-        <div className="flex gap-1 items-end">
-          <h1 className="text-3xl font-bold leading-[1.1] tracking-tight">
-            {category.name}
+        <div className="flex gap-2 items-end">
+          <Image
+            src={getFaviconUrl(alternative.url || "")}
+            alt={alternative.name}
+            width={32}
+            height={32}
+          />
+          <h1 className="text-3xl font-bold leading-[1.1] tracking-tight ">
+            {alternative.name}
           </h1>
-          <span className="text-muted-foreground font-medium text-2xl">
+          <span className="text-muted-foreground font-medium text-xl">
             Open Source Alternatives
           </span>
         </div>
-        <p className="max-w-[550px] text-lg text-white font-light leading-tight">
-          Find and compare the best open source alternatives to popular software
-          tools. Join our community of 3300+ creators.
-        </p>
-        <div className="mt-3 flex w-full max-w-sm space-x-2">
-          <Input
-            type="email"
-            placeholder="Enter your email"
-            className="h-9 focus-visible:ring-1"
-          />
-          <Button type="submit" className="h-9">
-            Subscribe
-          </Button>
-        </div>
+        <EmailCapture />
       </section>
 
       <section className="pb-24">
