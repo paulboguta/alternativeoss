@@ -1,9 +1,9 @@
 const nextConfig = {
   experimental: {
     // TODO: Caching in 0.2
-    // useCache: true,
+    useCache: true,
+    dynamicIO: true,
     // ppr: true,
-    // dynamicIO: true,
   },
   images: {
     remotePatterns: [

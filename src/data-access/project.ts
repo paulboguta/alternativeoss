@@ -10,6 +10,7 @@ import {
 } from "@/db/schema";
 import { NewProject } from "@/db/types";
 import { eq, or, sql } from "drizzle-orm";
+import { unstable_cacheTag as cacheTag } from "next/cache";
 import { getAlternative } from "./alternative";
 import { getCategory } from "./category";
 
@@ -48,6 +49,9 @@ export const createProject = async (project: NewProject) => {
 };
 
 export const getProject = async (slug: string) => {
+  'use cache';
+  cacheTag(`project:${slug}`);
+
   const project = await db.query.projects.findFirst({
     where: (projects, { eq }) => eq(projects.slug, slug),
   });
@@ -56,6 +60,9 @@ export const getProject = async (slug: string) => {
 };
 
 export const getProjects = async () => {
+  'use cache';
+  cacheTag('projects');
+
   const results = await db
     .select()
     .from(projects)
@@ -173,6 +180,9 @@ export const getProjectCategories = async (projectId: number) => {
 };
 
 export const getProjectCategoriesWithCount = async (projectId: number) => {
+  'use cache';
+  cacheTag(`project-categories-with-count:${projectId}`);
+
   const result = await db
     .select({
       categoryId: categories.id,
@@ -202,6 +212,9 @@ export const getOtherCategoriesWithCount = async (
   projectId: number,
   limit = 5
 ) => {
+  'use cache';
+  cacheTag(`other-categories-with-count:${projectId}`);
+
   const result = await db
     .select({
       categoryId: categories.id,
@@ -231,6 +244,9 @@ export const getOtherCategoriesWithCount = async (
 };
 
 export const getProjectAlternatives = async (projectId: number) => {
+  'use cache';
+  cacheTag(`project-alternatives:${projectId}`);
+
   const result = await db
     .select()
     .from(alternatives)

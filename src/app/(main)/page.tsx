@@ -2,8 +2,20 @@ import { EmailCapture } from "@/components/email/email-capture";
 import { Pagination } from "@/components/pagination";
 import { ProjectCard } from "@/components/project-card";
 import { getProjects } from "@/data-access/project";
+import { Project } from "@/db/types";
 import { ITEMS_PER_PAGE, searchParams } from "@/lib/search-params";
 import { SearchParams } from "nuqs/server";
+
+// Generate static pages for the first 5 pages at build time
+export async function generateStaticParams() {
+  const projects = await getProjects();
+  const totalPages = Math.ceil(projects.length / ITEMS_PER_PAGE);
+  const pagesToGenerate = Math.min(5, totalPages);
+  
+  return Array.from({ length: pagesToGenerate }, (_, i) => ({
+    searchParams: { page: (i + 1).toString() }
+  }));
+}
 
 export default async function HomePage(props: {
   searchParams: Promise<SearchParams>;
@@ -45,7 +57,7 @@ export default async function HomePage(props: {
 
       <section className="pb-24">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {paginatedProjects.map((project) => (
+          {paginatedProjects.map((project: Project & { license: { name: string } }) => (
             <ProjectCard
               key={project.name}
               name={project.name}

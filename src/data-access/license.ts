@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { licenses, projectLicenses } from "@/db/schema";
 import { eq } from "drizzle-orm";
-
+import { unstable_cacheTag as cacheTag } from "next/cache";
 export const checkIfLicenseExists = async (key: string) => {
   const license = await db.select().from(licenses).where(eq(licenses.key, key));
 
@@ -9,6 +9,9 @@ export const checkIfLicenseExists = async (key: string) => {
 };
 
 export const getLicense = async (projectId: number) => {
+  'use cache';
+  cacheTag(`license:${projectId}`);
+
   const license = await db
     .select()
     .from(licenses)
