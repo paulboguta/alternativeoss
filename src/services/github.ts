@@ -18,6 +18,10 @@ export async function getGitHubStats(repoUrl: string) {
     stars: data.stargazers_count,
     lastCommit: data.pushed_at,
     createdAt: data.created_at,
+    license: {
+      name: data.license?.name,
+      key: data.license?.key,
+    },
   };
 
   return repoStats;

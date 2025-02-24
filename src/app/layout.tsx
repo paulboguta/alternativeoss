@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { cn } from "@/lib/utils";
+import { ClerkProvider } from "@clerk/nextjs";
 import { OpenPanelComponent } from "@openpanel/nextjs";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -18,22 +19,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased dark",
-          inter.className
-        )}
-      >
-        <OpenPanelComponent
-          apiUrl="/api/op"
-          clientId={env.OPEN_PANEL_CLIENT_ID!}
-          trackScreenViews={true}
-          trackAttributes={true}
-          trackOutgoingLinks={true}
-        />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={cn(
+            "min-h-screen bg-background font-sans antialiased dark",
+            inter.className
+          )}
+        >
+          <OpenPanelComponent
+            apiUrl="/api/op"
+            clientId={env.OPEN_PANEL_CLIENT_ID!}
+            trackScreenViews={true}
+            trackAttributes={true}
+            trackOutgoingLinks={true}
+          />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

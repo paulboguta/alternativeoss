@@ -8,9 +8,14 @@ export const env = createEnv({
     OPEN_PANEL_SECRET: z.string().min(1),
     CLAUDE_API_KEY: z.string().min(1),
     GITHUB_TOKEN: z.string().min(1),
+    UPSTASH_REDIS_REST_URL: z.string().url(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
+    NODE_ENV: z.enum(["development", "production"]),
+    CLERK_SECRET_KEY: z.string().min(1),
+    FIRECRAWL_API_KEY: z.string().min(1),
   },
   client: {
-    // NEXT_PUBLIC_PUBLISHABLE_KEY: z.string().min(1),
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
   },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
@@ -18,5 +23,12 @@ export const env = createEnv({
     OPEN_PANEL_SECRET: process.env.OPEN_PANEL_SECRET,
     CLAUDE_API_KEY: process.env.CLAUDE_API_KEY,
     GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    NODE_ENV: process.env.NODE_ENV,
+    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
+    FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY,
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   },
 });

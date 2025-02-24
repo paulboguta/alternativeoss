@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { useServerAction } from "zsa-react";
 import { submitProject } from "./actions";
 
@@ -17,6 +18,15 @@ type FormValues = {
   repoLink: string;
   description: string;
 };
+
+export const submitProjectSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  projectName: z.string().min(2, "Project name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  websiteUrl: z.string().url("Invalid website URL").optional(),
+  repoLink: z.string().url("Invalid repository URL"),
+  description: z.string().min(50, "Description must be at least 50 characters"),
+});
 
 export default function SubmitPage() {
   const { execute: runAction, status } = useServerAction(submitProject);

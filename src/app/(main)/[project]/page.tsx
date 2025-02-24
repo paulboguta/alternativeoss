@@ -1,4 +1,3 @@
-import { mockProjects } from "@/app/(main)/page";
 import { Icons } from "@/components/icons";
 import {
   Breadcrumb,
@@ -9,8 +8,16 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import {
+  getOtherCategoriesWithCount,
+  getProjectCategoriesWithCount,
+} from "@/data-access/category";
+import { getLicense } from "@/data-access/license";
+import { getProject } from "@/data-access/project";
 import { getFaviconUrl } from "@/lib/favicon";
+import { generateSlug } from "@/utils/slug";
 import { buildProjectUrl } from "@/utils/url";
+import { format } from "date-fns";
 import {
   ArrowRightIcon,
   Clock7,
@@ -23,7 +30,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import slugify from "slugify";
 
 // Mock alternatives for now
 const alternatives = [
@@ -34,22 +40,6 @@ const alternatives = [
   { name: "CleanShot", url: "https://cleanshot.com" },
 ];
 
-// Mock categories
-const projectCategories = [
-  { name: "Screen Recording", count: 15 },
-  { name: "API Tools", count: 28 },
-  { name: "Cloud Infrastructure", count: 156 },
-];
-
-const exploreCategories = [
-  { name: "Analytics", count: 24 },
-  { name: "Authentication", count: 18 },
-  { name: "CMS", count: 32 },
-  { name: "Databases", count: 45 },
-  { name: "DevOps", count: 56 },
-  { name: "Email", count: 12 },
-];
-
 type Props = {
   params: {
     project: string;
@@ -57,27 +47,32 @@ type Props = {
 };
 
 export default async function ProjectPage({ params }: Props) {
-  const project = mockProjects.find(
-    (p) =>
-      slugify(p.name, { lower: true, locale: "en", strict: true }) ===
-      params.project
-  );
+  const awaitedParams = await params;
 
-  if (!project) {
+  const project = await getProject(awaitedParams.project);
+
+  if (
+    !project ||
+    !project.id ||
+    !project.url ||
+    !project.repoUrl ||
+    !project.repoStars ||
+    !project.repoForks ||
+    !project.repoLastCommit ||
+    !project.features
+  ) {
     notFound();
   }
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(date);
-  };
+  const [projectCategories, otherCategories, license] = await Promise.all([
+    getProjectCategoriesWithCount(project.id),
+    getOtherCategoriesWithCount(project.id),
+    getLicense(project?.id),
+  ]);
 
   return (
     <div className="relative min-h-screen">
-      <div className="grid grid-cols-1 md:grid-cols-[280px_auto] pr-8 lg:pr-0 lg:grid-cols-[280px_auto_300px] gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-[300px_auto] pr-8 lg:pr-0 lg:grid-cols-[300px_auto_300px] gap-8">
         <aside className="md:border-r border-dashed px-0 md:px-8 md:py-8 order-2 md:order-1">
           <div className="md:sticky md:top-24 space-y-6">
             {/* Alternatives */}
@@ -87,9 +82,7 @@ export default async function ProjectPage({ params }: Props) {
                 {alternatives.map((alt) => (
                   <Link
                     key={alt.name}
-                    href={`/alternatives/${slugify(alt.name, {
-                      lower: true,
-                    })}`}
+                    href={`/alternatives/${generateSlug(alt.name)}`}
                     className="flex items-center gap-1.5 group hover:bg-accent/50 rounded-md px-1.5 py-1 transition-colors w-fit"
                   >
                     <div className="flex items-center justify-center rounded-md ">
@@ -113,13 +106,11 @@ export default async function ProjectPage({ params }: Props) {
               <div className="flex flex-wrap gap-1.5">
                 {projectCategories.map((category) => (
                   <Link
-                    key={category.name}
-                    href={`/category/${slugify(category.name, {
-                      lower: true,
-                    })}`}
+                    key={category.categoryId}
+                    href={`/categories/${generateSlug(category.categoryName)}`}
                     className="inline-flex items-center gap-1.5 rounded-md bg-secondary/50 px-2 py-0.5 text-xs font-medium text-secondary-foreground hover:bg-secondary/80 transition-colors group"
                   >
-                    <span>{category.name}</span>
+                    <span>{category.categoryName}</span>
                     <span className="inline-flex items-center rounded bg-background/80 px-1 py-0.5 text-[10px] font-medium">
                       {category.count}
                     </span>
@@ -132,16 +123,14 @@ export default async function ProjectPage({ params }: Props) {
                 Explore other categories
               </h3>
               <div className="flex flex-col gap-1">
-                {exploreCategories.map((category) => (
+                {otherCategories.map((category) => (
                   <Link
-                    key={category.name}
-                    href={`/category/${slugify(category.name, {
-                      lower: true,
-                    })}`}
+                    key={category.categoryId}
+                    href={`/categories/${generateSlug(category.categoryName)}`}
                     className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-accent/50 transition-colors group"
                   >
                     <span className="text-xs font-medium group-hover:text-foreground text-muted-foreground">
-                      {category.name}
+                      {category.categoryName}
                     </span>
                     <span className="text-xs font-medium bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded">
                       {category.count}
@@ -243,15 +232,21 @@ export default async function ProjectPage({ params }: Props) {
                   </span>
                   <span className="text-xs text-muted-foreground">forks</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Scale className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{project.license}</span>
-                  <span className="text-xs text-muted-foreground">license</span>
-                </div>
+                {license?.licenses.name !== "other" && (
+                  <div className="flex items-center gap-2">
+                    <Scale className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">
+                      {license?.licenses.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      license
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <Clock7 className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">
-                    Last commit {formatDate(project.repoLastCommit)}
+                    Last commit {format(project.repoLastCommit, "MMM d, yyyy")}
                   </span>
                 </div>
               </div>
@@ -316,15 +311,21 @@ export default async function ProjectPage({ params }: Props) {
                   </span>
                   <span className="text-xs text-muted-foreground">forks</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Scale className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{project.license}</span>
-                  <span className="text-xs text-muted-foreground">license</span>
-                </div>
+                {license?.licenses.name !== "other" && (
+                  <div className="flex items-center gap-2">
+                    <Scale className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">
+                      {license?.licenses.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      license
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <Clock7 className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">
-                    Last commit {formatDate(project.repoLastCommit)}
+                    Last commit {format(project.repoLastCommit, "MMM d, yyyy")}
                   </span>
                 </div>
               </div>

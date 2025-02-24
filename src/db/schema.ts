@@ -2,7 +2,6 @@ import { relations } from "drizzle-orm";
 import {
   boolean,
   integer,
-  pgEnum,
   pgTable,
   primaryKey,
   serial,
@@ -10,32 +9,16 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
-export const licenseEnum = pgEnum("license_enum", [
-  "AGPL-3.0",
-  "MIT",
-  "Apache-2.0",
-  "GPL-3.0",
-  "MPL-2.0",
-  "BSD-3-Clause",
-  "GPL-2.0",
-  "LGPL-2.1",
-  "BSD-2-Clause",
-  "EPL-2.0",
-  "LGPL-3.0",
-]);
-
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  slug: text("slug").notNull(),
   summary: text("summary"),
   longDescription: text("long_description"),
   features: text("features").array(),
 
   url: text("url"),
   logoUrl: text("logo_url"),
-  license: licenseEnum("license").notNull(),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
 
   repoUrl: text("repo_url"),
   repoStars: integer("repo_stars"),
@@ -43,6 +26,7 @@ export const projects = pgTable("projects", {
   repoLastCommit: timestamp("repo_last_commit", { mode: "date" }),
   repoCreatedAt: timestamp("repo_created_at", { mode: "date" }),
 
+  affiliateCode: text("affiliate_code"),
   isClaimed: boolean("is_claimed").default(false),
   isFeatured: boolean("is_featured").default(false),
   isLive: boolean("is_live").default(false),
@@ -50,12 +34,14 @@ export const projects = pgTable("projects", {
   featureEndAt: timestamp("feature_end_at", { mode: "date" }),
   scheduledAt: timestamp("scheduled_at", { mode: "date" }),
 
-  affiliateCode: text("affiliate_code"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
 });
 
 // Projects relations
 export const projectsRelations = relations(projects, ({ many }) => ({
   projectCategories: many(projectCategories),
+  projectLicenses: many(projectLicenses),
   // ** in 2.0:
   //   projectAlternatives: many(projectAlternatives, {
   //     relationName: "projectAlternatives",
@@ -81,6 +67,7 @@ export const submissions = pgTable("submissions", {
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").unique().notNull(),
+  slug: text("slug").unique().notNull(),
 });
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
@@ -112,6 +99,39 @@ export const projectCategoriesRelations = relations(
     category: one(categories, {
       fields: [projectCategories.categoryId],
       references: [categories.id],
+    }),
+  })
+);
+
+export const licenses = pgTable("licenses", {
+  id: serial("id").primaryKey(),
+  name: text("name").unique().notNull(),
+  key: text("key").unique().notNull(),
+});
+
+export const licensesRelations = relations(licenses, ({ many }) => ({
+  projects: many(projects),
+}));
+
+export const projectLicenses = pgTable("project_licenses", {
+  projectId: integer("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  licenseId: integer("license_id")
+    .notNull()
+    .references(() => licenses.id, { onDelete: "cascade" }),
+});
+
+export const projectLicensesRelations = relations(
+  projectLicenses,
+  ({ one }) => ({
+    project: one(projects, {
+      fields: [projectLicenses.projectId],
+      references: [projects.id],
+    }),
+    license: one(licenses, {
+      fields: [projectLicenses.licenseId],
+      references: [licenses.id],
     }),
   })
 );

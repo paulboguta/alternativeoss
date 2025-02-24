@@ -2,6 +2,7 @@ export type WebsiteConfig = {
   name: string;
   domain: string;
   description: string;
+  status: "waitlist" | "public";
   links: {
     github: string;
   };
@@ -14,4 +15,5 @@ export const websiteConfig: WebsiteConfig = {
   links: {
     github: "https://github.com/yourusername/alternativeoss",
   },
+  status: "waitlist",
 };

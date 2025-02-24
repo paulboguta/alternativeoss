@@ -25,6 +25,9 @@ You are an expert in TypeScript, Next.js App Router, React, Shadcn UI, Radix UI 
   - Use the "function" keyword for pure functions.
   - Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
   - Use declarative JSX.
+
+  Drizzle & Database
+  - Use db.select() to query data, not db.query.
   
   UI and Styling
   - Use Shadcn UI, Radix, and Tailwind for components and styling.

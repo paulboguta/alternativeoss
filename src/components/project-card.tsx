@@ -1,9 +1,9 @@
 import { Icons } from "@/components/icons";
 import { Separator } from "@/components/ui/separator";
 import { getFaviconUrl } from "@/lib/favicon";
+import { generateSlug } from "@/utils/slug";
 import Image from "next/image";
 import Link from "next/link";
-import slugify from "slugify";
 
 type ProjectCardProps = {
   name: string;
@@ -31,10 +31,7 @@ export function ProjectCard({
   };
 
   return (
-    <Link
-      href={`/${slugify(name, { lower: true, locale: "en", strict: true })}`}
-      className="block"
-    >
+    <Link href={`/${generateSlug(name)}`} className="block">
       <div className="relative flex h-full flex-col rounded-lg border border-border/50 bg-card p-6 transition-colors hover:bg-accent/10">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
@@ -62,8 +59,12 @@ export function ProjectCard({
             <span className="text-[13px]">
               Last commit {formatDate(repoLastCommit)}
             </span>
-            <Separator orientation="vertical" className="h-4" />
-            <span>{license}</span>
+            {license !== "other" && (
+              <>
+                <Separator orientation="vertical" className="h-4" />
+                <span>{license}</span>
+              </>
+            )}
           </div>
         </div>
       </div>

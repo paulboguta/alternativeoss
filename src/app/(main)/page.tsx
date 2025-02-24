@@ -1,7 +1,7 @@
 import { ProjectCard } from "@/components/project-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getGitHubStats } from "@/services/github";
+import { getProjects } from "@/data-access/project";
 
 const MOCK_DESCRIPTION =
   "An open-source alternative that provides enterprise-grade features, robust security, and seamless integration capabilities. Built with modern technologies and designed for scalability, it offers a comprehensive solution for teams of all sizes.";
@@ -208,17 +208,15 @@ export const mockProjects = [
 ];
 
 export default async function HomePage() {
-  const repoStats = await getGitHubStats("https://github.com/calcom/cal.com");
-
-  console.log(repoStats);
+  const projects = await getProjects();
 
   return (
-    <div className=" px-8">
+    <div className="px-8">
       <section className="mx-auto flex flex-col gap-3 py-8 md:py-12 md:pb-8 lg:py-24 lg:pb-20">
         <h1 className="text-3xl font-bold leading-[1.1] tracking-tight">
           Discover Open Source Software
         </h1>
-        <p className="max-w-[550px] text-lg text-muted-foreground font-light leading-tight">
+        <p className="max-w-[550px] text-lg text-white font-light leading-tight">
           Find and compare the best open source alternatives to popular software
           tools. Join our community of 3300+ creators.
         </p>
@@ -236,14 +234,14 @@ export default async function HomePage() {
 
       <section className="pb-24">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {mockProjects.map((project) => (
+          {projects.map((project) => (
             <ProjectCard
               key={project.name}
               name={project.name}
               summary={project.summary!}
               url={project.url!}
               repoStars={project.repoStars!}
-              license={project.license}
+              license={project.license.name}
               repoLastCommit={project.repoLastCommit!}
             />
           ))}
