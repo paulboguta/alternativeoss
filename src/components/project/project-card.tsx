@@ -1,9 +1,9 @@
-import { Icons } from "@/components/icons";
-import { Separator } from "@/components/ui/separator";
-import { getFaviconUrl } from "@/lib/favicon";
-import { generateSlug } from "@/utils/slug";
-import Image from "next/image";
-import Link from "next/link";
+import { Icons } from '@/components/icons';
+import { Separator } from '@/components/ui/separator';
+import { getFaviconUrl } from '@/lib/favicon';
+import { generateSlug } from '@/utils/slug';
+import Image from 'next/image';
+import Link from 'next/link';
 
 type ProjectCardProps = {
   name: string;
@@ -23,19 +23,19 @@ export function ProjectCard({
   repoLastCommit,
 }: ProjectCardProps) {
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     }).format(date);
   };
 
   return (
     <Link href={`/${generateSlug(name)}`} className="block">
-      <div className="relative flex h-full flex-col rounded-lg border border-border/50 bg-card p-6 hover:bg-muted/10 hover:ring-[3px] hover:border-ring/20 ring-ring/8 shadow-xs transition-all">
+      <div className="border-border/50 bg-card hover:bg-muted/10 hover:border-ring/20 ring-ring/8 relative flex h-full flex-col rounded-lg border p-6 shadow-xs transition-all hover:ring-[3px]">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
-            <h3 className="flex items-center gap-2 font-semibold leading-none tracking-tight">
+            <h3 className="flex items-center gap-2 leading-none font-semibold tracking-tight">
               <Image
                 src={getFaviconUrl(url)}
                 alt={`${name} favicon`}
@@ -45,21 +45,17 @@ export function ProjectCard({
               />
               <span className="text-foreground">{name}</span>
             </h3>
-            <p className="min-h-[60px] text-sm text-muted-foreground line-clamp-3">
-              {summary}
-            </p>
+            <p className="text-muted-foreground line-clamp-3 min-h-[60px] text-sm">{summary}</p>
           </div>
         </div>
         <div className="mt-4 flex flex-col gap-2">
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-1 text-sm">
             <Icons.gitHub className="h-4 w-4" />
             <span>{repoStars.toLocaleString()} stars</span>
           </div>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span className="text-[13px]">
-              Last commit {formatDate(repoLastCommit)}
-            </span>
-            {license !== "other" && (
+          <div className="text-muted-foreground flex items-center gap-4 text-sm">
+            <span className="text-[13px]">Last commit {formatDate(repoLastCommit)}</span>
+            {license !== 'other' && (
               <>
                 <Separator orientation="vertical" className="h-4" />
                 <span className="uppercase">{license}</span>

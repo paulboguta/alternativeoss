@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { createAlternativeAction } from "@/app/dev/create-alternative/actions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { createAlternativeAction } from '@/app/dev/alternatives/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -9,31 +9,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import {
-  createAlternativeFormSchema,
-  type CreateAlternativeForm,
-} from "@/types/alternative";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useServerAction } from "zsa-react";
-import { LoaderButton } from "../loader-button";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { createAlternativeFormSchema, type CreateAlternativeForm } from '@/types/alternative';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { useServerAction } from 'zsa-react';
+import { LoaderButton } from '../../loader-button';
 
-export function CreateAlternativeForm() {
+export function CreateAlternativeForm({ onSuccess }: { onSuccess?: () => void }) {
   const form = useForm<CreateAlternativeForm>({
     resolver: zodResolver(createAlternativeFormSchema),
     defaultValues: {
-      name: "",
-      url: "",
+      name: '',
+      url: '',
       price: 0,
-      pricingModel: "",
+      pricingModel: '',
       isPaid: true,
     },
   });
 
-  const { execute, isPending } = useServerAction(createAlternativeAction);
+  const { execute, isPending } = useServerAction(createAlternativeAction, {
+    onSuccess: () => {
+      form.reset();
+      if (onSuccess) onSuccess();
+    },
+  });
 
   function onSubmit(values: CreateAlternativeForm) {
     execute(values);
@@ -86,7 +88,7 @@ export function CreateAlternativeForm() {
                       type="number"
                       placeholder="0"
                       {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      onChange={e => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
                   <FormMessage />
@@ -101,10 +103,7 @@ export function CreateAlternativeForm() {
                 <FormItem>
                   <FormLabel>Pricing Model</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="e.g. monthly, yearly, one-time"
-                      {...field}
-                    />
+                    <Input placeholder="e.g. monthly, yearly, one-time" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -117,26 +116,19 @@ export function CreateAlternativeForm() {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Paid Alternative
-                    </FormLabel>
-                    <div className="text-sm text-muted-foreground">
+                    <FormLabel className="text-base">Paid Alternative</FormLabel>
+                    <div className="text-muted-foreground text-sm">
                       Whether this alternative requires payment to use
                     </div>
                   </div>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                 </FormItem>
               )}
             />
 
-            <LoaderButton isPending={isPending}>
-              Create Alternative
-            </LoaderButton>
+            <LoaderButton isPending={isPending}>Create Alternative</LoaderButton>
           </form>
         </Form>
       </CardContent>

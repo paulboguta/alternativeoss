@@ -1,5 +1,5 @@
-import { EmailCapture } from "@/components/email/email-capture";
-import { ProjectCard } from "@/components/project-card";
+import { EmailCapture } from '@/components/email/email-capture';
+import { ProjectCard } from '@/components/project/project-card';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,26 +7,24 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { getCategories } from "@/data-access/category";
-import { getProjectsByCategory } from "@/data-access/project";
-import { Command, HomeIcon } from "lucide-react";
-import { notFound } from "next/navigation";
+} from '@/components/ui/breadcrumb';
+import { getCategories } from '@/data-access/category';
+import { getProjectsByCategory } from '@/data-access/project';
+import { Command, HomeIcon } from 'lucide-react';
+import { notFound } from 'next/navigation';
 
-type Params = Promise<{ slug: string }>
+type Params = Promise<{ slug: string }>;
 
 export async function generateStaticParams() {
   const categories = await getCategories();
 
-  return categories.map((category) => ({
+  return categories.map(category => ({
     slug: category.slug,
   }));
 }
 
-export default async function CategoryPage(props: {
-  params: Params
-}) {
-  const {slug} = await props.params;
+export default async function CategoryPage(props: { params: Params }) {
+  const { slug } = await props.params;
   if (!slug) {
     notFound();
   }
@@ -42,20 +40,14 @@ export default async function CategoryPage(props: {
       <Breadcrumb className="mt-4">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink
-              href="/"
-              className="inline-flex items-center gap-1.5"
-            >
+            <BreadcrumbLink href="/" className="inline-flex items-center gap-1.5">
               <HomeIcon size={16} aria-hidden="true" />
               Home
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink
-              href="/categories"
-              className="inline-flex items-center gap-1.5"
-            >
+            <BreadcrumbLink href="/categories" className="inline-flex items-center gap-1.5">
               <Command size={16} aria-hidden="true" />
               Project Categories
             </BreadcrumbLink>
@@ -67,12 +59,10 @@ export default async function CategoryPage(props: {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <section className="mx-auto flex flex-col gap-3  md:py-4 md:pb-8 lg:py-15 lg:pb-20">
-        <div className="flex gap-1 items-end">
-          <h1 className="text-3xl font-bold leading-[1.1] tracking-tight">
-            {category.name}
-          </h1>
-          <span className="text-muted-foreground font-medium text-xl">
+      <section className="mx-auto flex flex-col gap-3 md:py-4 md:pb-8 lg:py-15 lg:pb-20">
+        <div className="flex items-end gap-1">
+          <h1 className="text-3xl leading-[1.1] font-bold tracking-tight">{category.name}</h1>
+          <span className="text-muted-foreground text-xl font-medium">
             Open Source Alternatives
           </span>
         </div>
@@ -81,7 +71,7 @@ export default async function CategoryPage(props: {
 
       <section className="pb-24">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
+          {projects.map(project => (
             <ProjectCard
               key={project.name}
               name={project.name}

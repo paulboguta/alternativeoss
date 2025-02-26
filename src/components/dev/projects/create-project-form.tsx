@@ -1,8 +1,7 @@
-"use client";
+'use client';
 
-import { createProjectAction } from "@/app/dev/create-project/actions";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { createProjectAction } from '@/app/dev/projects/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -10,29 +9,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  createProjectFormSchema,
-  type CreateProjectForm,
-} from "@/types/project";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { createProjectFormSchema, type CreateProjectForm } from '@/types/project';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useServerAction } from "zsa-react";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { useServerAction } from 'zsa-react';
+import { LoaderButton } from '../../loader-button';
 
-export function CreateProjectForm() {
+export function CreateProjectForm({ onSuccess }: { onSuccess?: () => void }) {
   const form = useForm<CreateProjectForm>({
     resolver: zodResolver(createProjectFormSchema),
     defaultValues: {
-      name: "",
-      url: "",
-      repoUrl: "",
-      affiliateCode: "",
+      name: '',
+      url: '',
+      repoUrl: '',
+      affiliateCode: '',
     },
   });
 
-  const { execute } = useServerAction(createProjectAction);
+  const { execute, isPending } = useServerAction(createProjectAction, {
+    onSuccess: () => {
+      form.reset();
+      if (onSuccess) onSuccess();
+    },
+  });
 
   function onSubmit(values: CreateProjectForm) {
     execute(values);
@@ -102,7 +104,7 @@ export function CreateProjectForm() {
               )}
             />
 
-            <Button type="submit">Create Project</Button>
+            <LoaderButton isPending={isPending}>Create Project</LoaderButton>
           </form>
         </Form>
       </CardContent>

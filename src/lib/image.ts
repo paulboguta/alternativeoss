@@ -1,16 +1,13 @@
-import { screenshotOneClient } from "@/services/screenshotone";
-import * as screenshotone from "screenshotone-api-sdk";
+import { screenshotOneClient } from '@/services/screenshotone';
+import * as screenshotone from 'screenshotone-api-sdk';
 
-export const generateScreenshot = async (
-  url: string,
-  slug: string
-): Promise<void> => {
+export const generateScreenshot = async (url: string, slug: string): Promise<void> => {
   const options = screenshotone.TakeOptions.url(url)
     .delay(3)
     .viewportHeight(720)
     .viewportWidth(1280)
-    .format("webp")
-    .responseType("by_format")
+    .format('webp')
+    .responseType('by_format')
     .blockAds(true)
     .blockCookieBanners(true)
     .blockBannersByHeuristics(false)
@@ -23,16 +20,14 @@ export const generateScreenshot = async (
     .reducedMotion(true)
     .store(true)
     .storagePath(slug)
-    .imageQuality(80);
+    .imageQuality(100);
 
   try {
-    const endpointUrl = await screenshotOneClient.generateSignedTakeURL(
-      options
-    );
+    const endpointUrl = await screenshotOneClient.generateSignedTakeURL(options);
 
     await fetch(endpointUrl);
   } catch (error) {
-    console.error("Error fetching screenshot:", error);
+    console.error('Error fetching screenshot:', error);
     throw error;
   }
 };
