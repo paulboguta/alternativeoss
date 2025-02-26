@@ -26,13 +26,30 @@ function getFaviconCandidates(url: string): string[] {
   ];
 }
 
+// SVG placeholder for when no favicon is available
+const SVG_PLACEHOLDER =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23e2e8f0'/%3E%3C/svg%3E";
+
 /**
  * Gets the favicon URL for a website with fallback options
+ * @param url The website URL
+ * @param preferGoogle Whether to prefer Google's favicon service (default: true)
+ * @returns The favicon URL or a placeholder SVG
  */
-export function getFaviconUrl(url: string): string {
+export function getFaviconUrl(url: string, preferGoogle = true): string {
   if (!url) {
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23e2e8f0'/%3E%3C/svg%3E";
+    return SVG_PLACEHOLDER;
   }
 
-  return getFaviconCandidates(url)[0] || "";
+  const candidates = getFaviconCandidates(url);
+
+  // If we don't want to prefer Google's service, move it to the end
+  if (!preferGoogle && candidates.length > 1) {
+    const googleCandidate = candidates.shift();
+    if (googleCandidate) {
+      candidates.push(googleCandidate);
+    }
+  }
+
+  return candidates[0] || SVG_PLACEHOLDER;
 }
