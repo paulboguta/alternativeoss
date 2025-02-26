@@ -1,17 +1,14 @@
 import Analytics from '@/components/analytics';
 import { Toaster } from '@/components/ui/sonner';
+import { metadata } from '@/config/website';
 import { cn } from '@/lib/utils';
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: 'Alternative OSS',
-  description: 'Open Source Software Alternative Directory',
-};
+export { metadata };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

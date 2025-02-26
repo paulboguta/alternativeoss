@@ -7,15 +7,8 @@ import { ITEMS_PER_PAGE, searchParams } from '@/lib/search-params';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
-// TODO: verify if this is needed
-export async function generateStaticParams() {
-  const { pagination } = await getPaginatedProjects(1, ITEMS_PER_PAGE);
-  const pagesToGenerate = Math.min(5, pagination.totalPages);
 
-  return Array.from({ length: pagesToGenerate }, (_, i) => ({
-    searchParams: { page: (i + 1).toString() },
-  }));
-}
+  
 
 async function ProjectsContent({
   searchParams: rawSearchParams,

@@ -17,7 +17,8 @@ You are an expert in TypeScript, Next.js App Router, React, Shadcn UI, Radix UI 
   - Favor named exports for components.
   
   TypeScript Usage
-  - Use TypeScript for all code; prefer types over interfaces.
+  - Use TypeScript for all code;
+  - Use types over interfaces.
   - Avoid enums; use maps instead.
   - Use functional components with TypeScript types.
   

@@ -1,0 +1,6 @@
+User-Agent: *
+Allow: /
+Disallow: /private/
+Disallow: /dev/
+
+Sitemap: https://alternativeoss.com/sitemap.xml
