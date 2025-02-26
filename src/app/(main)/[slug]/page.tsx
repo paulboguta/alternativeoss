@@ -84,8 +84,7 @@ async function RightSidebar({ projectId }: { projectId: number }) {
 
 export default async function ProjectPage(props: { params: Params }) {
   const { slug } = await props.params;
-  const projectResults = await getProject(slug);
-  const projectData = projectResults[0];
+  const projectData = await getProject(slug);
 
   if (!projectData || !isValidProjectData(projectData)) {
     notFound();

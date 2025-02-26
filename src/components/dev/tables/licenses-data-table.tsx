@@ -62,8 +62,8 @@ export const columns: ColumnDef<License>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => {
-      const license = row.original;
+    cell: () => {
+      // const license = row.original;
 
       return (
         <DropdownMenu>
@@ -75,9 +75,9 @@ export const columns: ColumnDef<License>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(license.id.toString())}>
+            {/* <DropdownMenuItem onClick={() => navigator.clipboard.writeText(license.id.toString())}>
               Copy ID
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <Pencil className="mr-2 h-4 w-4" />

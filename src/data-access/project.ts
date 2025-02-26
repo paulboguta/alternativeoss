@@ -67,7 +67,7 @@ export const getProject = async (slug: string) => {
     .from(projects)
     .where(eq(projects.slug, slug));
 
-  return project;
+  return project[0];
 };
 
 export const getProjectRepoStats = async (projectId: number) => {
