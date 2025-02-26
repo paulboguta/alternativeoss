@@ -11,6 +11,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { createProjectFormSchema, type CreateProjectForm } from '@/types/project';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +27,7 @@ export function CreateProjectForm({ onSuccess }: { onSuccess?: () => void }) {
       url: '',
       repoUrl: '',
       affiliateCode: '',
+      ai_description: '',
     },
   });
 
@@ -98,6 +100,24 @@ export function CreateProjectForm({ onSuccess }: { onSuccess?: () => void }) {
                   <FormLabel>Affiliate Code</FormLabel>
                   <FormControl>
                     <Input placeholder="Optional affiliate code" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="ai_description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>AI Description (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Additional context for AI to better understand the project" 
+                      className="min-h-[100px]" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

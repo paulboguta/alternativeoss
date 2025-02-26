@@ -45,6 +45,12 @@ export const createProject = async (project: NewProject) => {
   // Invalidate relevant cache tags
   revalidateTag('projects');
   revalidateTag(`projects-count`);
+  revalidateTag(`projects-page-1`); // Ensure the first page is revalidated
+
+  if (newProject) {
+    revalidateTag(`project/${newProject.slug}`);
+    revalidateTag(`project-repo-stats/${newProject.id}`);
+  }
 
   return newProject;
 };
@@ -69,8 +75,8 @@ export const getProject = async (slug: string) => {
       license: licenses,
     })
     .from(projects)
-    .innerJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
-    .innerJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
+    .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
+    .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
     .where(eq(projects.slug, slug));
 
   return project[0];
@@ -78,6 +84,7 @@ export const getProject = async (slug: string) => {
 
 export const getProjectRepoStats = async (projectId: number) => {
   'use cache';
+
   cacheTag(`project-repo-stats/${projectId}`);
 
   const stats = await db
@@ -89,8 +96,8 @@ export const getProjectRepoStats = async (projectId: number) => {
       license: licenses,
     })
     .from(projects)
-    .innerJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
-    .innerJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
+    .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
+    .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
     .where(eq(projects.id, projectId));
 
   return stats[0];
@@ -111,8 +118,8 @@ export const getProjects = async () => {
       summary: projects.summary,
     })
     .from(projects)
-    .innerJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
-    .innerJoin(licenses, eq(projectLicenses.licenseId, licenses.id));
+    .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
+    .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id));
 
   return results;
 };
@@ -135,8 +142,8 @@ export const getPaginatedProjects = async (page: number, limit: number) => {
       summary: projects.summary,
     })
     .from(projects)
-    .innerJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
-    .innerJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
+    .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
+    .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
     .limit(limit)
     .offset(offset);
 
@@ -169,8 +176,8 @@ export const getProjectsByCategory = async (slug: string) => {
     .select()
     .from(projects)
     .innerJoin(projectCategories, eq(projects.id, projectCategories.projectId))
-    .innerJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
-    .innerJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
+    .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
+    .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
     .where(eq(projectCategories.categoryId, category.id));
 
   return {
@@ -197,8 +204,8 @@ export const getProjectsByAlternative = async (slug: string) => {
     .from(projects)
     .innerJoin(projectAlternatives, eq(projects.id, projectAlternatives.projectId))
     .innerJoin(alternatives, eq(projectAlternatives.alternativeId, alternatives.id))
-    .innerJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
-    .innerJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
+    .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
+    .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
     .where(eq(projectAlternatives.alternativeId, alternative.id));
 
   return {

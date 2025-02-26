@@ -2,7 +2,8 @@ import { anthropic, CLAUDE_MODELS, cleanClaudeResponse } from "./core";
 
 export async function generateProjectAlternatives(
   projectName: string,
-  alternatives: string[]
+  alternatives: string[],
+  ai_description?: string
 ) {
   const response = await anthropic.messages.create({
     model: CLAUDE_MODELS.SONNET,
@@ -34,6 +35,7 @@ export async function generateProjectAlternatives(
     ${JSON.stringify({
       projectName,
       alternatives,
+      additionalContext: ai_description || "",
     })}
     </data_inputs>
     
@@ -65,6 +67,7 @@ export async function generateProjectAlternatives(
     3. You should not add any other text or formatting. Only the JSON object.
     4. You should not force assigning alternatives if there are no relevant ones - just add new alternatives.
     5. Software (alternative) MUST be proprietary AND NOT open source.
+    6. If ai_description is provided, use it to enhance your understanding of the project.
     `.trim(),
       },
     ],

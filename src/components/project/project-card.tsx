@@ -10,7 +10,7 @@ type ProjectCardProps = {
   summary: string;
   url: string;
   repoStars: number;
-  license: string;
+  license?: string | null;
   repoLastCommit: Date;
 };
 
@@ -56,7 +56,7 @@ export function ProjectCard({
           </div>
           <div className="text-muted-foreground flex items-center gap-4 text-sm">
             <span className="text-[13px]">Last commit {formatDate(repoLastCommit)}</span>
-            {license !== 'other' && (
+            {license && license !== 'other' && (
               <>
                 <Separator orientation="vertical" className="h-4" />
                 <span className="uppercase">{license}</span>

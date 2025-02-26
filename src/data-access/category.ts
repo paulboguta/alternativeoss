@@ -2,7 +2,7 @@ import { db } from '@/db';
 import { categories, projectCategories } from '@/db/schema';
 import { generateSlug } from '@/utils/slug';
 import { eq } from 'drizzle-orm';
-import { cacheTag } from 'next/dist/server/use-cache/cache-tag';
+import { unstable_cacheTag as cacheTag, revalidateTag } from 'next/cache';
 
 export const checkIfCategoryExists = async (name: string) => {
   const category = await db.query.categories.findFirst({
@@ -37,7 +37,18 @@ export const getCategory = async (slug: string) => {
 };
 
 export const updateProjectCategories = async (projectId: number, categoriesIds: number[]) => {
-  await db
-    .insert(projectCategories)
-    .values(categoriesIds.map(categoryId => ({ projectId, categoryId })));
+  // First delete existing relationships
+  await db.delete(projectCategories).where(eq(projectCategories.projectId, projectId));
+
+  // Then insert new ones
+  if (categoriesIds.length > 0) {
+    await db
+      .insert(projectCategories)
+      .values(categoriesIds.map(categoryId => ({ projectId, categoryId })));
+  }
+
+  // Revalidate cache tags
+  revalidateTag(`project-categories/${projectId}`);
+  revalidateTag(`other-categories/${projectId}`);
+  revalidateTag('categories');
 };

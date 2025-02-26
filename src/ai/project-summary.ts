@@ -4,7 +4,11 @@ import { anthropic } from "./core";
 
 import { CLAUDE_MODELS } from "./core";
 
-export async function generateProjectSummary(projectName: string, url: string) {
+export async function generateProjectSummary(
+  projectName: string, 
+  url: string, 
+  ai_description?: string
+) {
   const response = await anthropic.messages.create({
     model: CLAUDE_MODELS.SONNET,
     messages: [
@@ -17,6 +21,7 @@ export async function generateProjectSummary(projectName: string, url: string) {
   ${JSON.stringify({
     projectName,
     url,
+    additionalContext: ai_description || "",
   })}
   </data_inputs>
   
@@ -60,6 +65,7 @@ export async function generateProjectSummary(projectName: string, url: string) {
   3. You foucs on the product only.
   4. You output the JSON format exactly, no other text or formatting. Only the JSON object.
   5. The weight for the reasoning should be: 70% your knowledge, 30% the data provided
+  6. If ai_description is provided, use it to enhance your understanding of the project.
   `.trim(),
       },
     ],

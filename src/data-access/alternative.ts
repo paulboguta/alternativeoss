@@ -2,7 +2,7 @@ import { db } from '@/db';
 import { alternatives, projectAlternatives } from '@/db/schema';
 import { generateSlug } from '@/utils/slug';
 import { eq } from 'drizzle-orm';
-import { unstable_cacheTag as cacheTag } from 'next/cache';
+import { unstable_cacheTag as cacheTag, revalidateTag } from 'next/cache';
 
 export const checkIfAltenativeExists = async (name: string) => {
   const alternative = await db.select().from(alternatives).where(eq(alternatives.name, name));
@@ -65,4 +65,9 @@ export const updateProjectAlternatives = async (projectId: number, alternativesI
       }))
     );
   }
+
+  // Revalidate cache tags
+  revalidateTag(`project-alternatives/${projectId}`);
+  revalidateTag(`project/${projectId}`);
+  revalidateTag('alternatives');
 };

@@ -34,7 +34,7 @@ export const handleProjectCreated = inngest.createFunction(
   { id: 'handle-project-created' },
   { event: 'project/created' },
   async ({ event, step }) => {
-    const { name, url, repoUrl, affiliateCode } = event.data;
+    const { name, url, repoUrl, affiliateCode, ai_description } = event.data;
 
     if (!url || !name || !repoUrl) {
       throw new Error('Missing required fields');
@@ -42,8 +42,9 @@ export const handleProjectCreated = inngest.createFunction(
 
     const slug = generateSlug(name);
 
-    await step.run('create-project', async () => {
-      await createProject({
+    // Create the project first
+    const newProject = await step.run('create-project', async () => {
+      const newProject = await createProject({
         name,
         slug,
         url,
@@ -52,35 +53,36 @@ export const handleProjectCreated = inngest.createFunction(
         affiliateCode,
         repoUrl,
       });
+
+      // Ensure the project is immediately available
+      return newProject;
     });
 
-    const updateRepoStats = step.run('get-repo-stats', async () => {
+    if (!newProject) {
+      throw new Error('Failed to create project');
+    }
+
+    // Get repo stats and update license immediately
+    await step.run('update-license-and-stats', async () => {
       const repoStats = await getGitHubStats(repoUrl);
 
+      // Update repo stats
       await updateProjectRepoStats(slug, repoStats);
+
+      // Update license immediately if available
+      if (repoStats.license?.key) {
+        await updateLicenseProjectUseCase(repoStats.license.key, newProject.id);
+      } else {
+        // If no license found, use a default license
+        await updateLicenseProjectUseCase('unknown', newProject.id);
+      }
 
       return repoStats;
     });
 
-    const updateLicense = step.run('update-license', async () => {
-      const repoStats = await getGitHubStats(repoUrl);
-
-      if (!repoStats.license.key) {
-        throw new Error('No license found');
-      }
-
-      const project = await getProject(slug);
-
-      if (!project) {
-        throw new Error('Project not found');
-      }
-
-      await updateLicenseProjectUseCase(repoStats.license.key, project.id);
-    });
-
-    // * CLAUDE SONNET POWERED
+    // Continue with the rest of the steps in parallel
     const createProjectContent = step.run('create-project-content', async () => {
-      const content = await generateProjectSummary(name, url);
+      const content = await generateProjectSummary(name, url, ai_description);
 
       const { summary, longDescription, features } = extractJsonFromResponse(content);
 
@@ -99,13 +101,16 @@ export const handleProjectCreated = inngest.createFunction(
 
       const project = await getProject(slug);
 
+      console.log('project', project);
+
       if (!project) {
         throw new Error('Project not found');
       }
 
       const projectCategories = await generateProjectCategories(
         name,
-        categories.map(category => category.name)
+        categories.map(category => category.name),
+        ai_description
       );
 
       const { categories: assignedCategoryNames, categoriesToAdd } =
@@ -131,13 +136,16 @@ export const handleProjectCreated = inngest.createFunction(
 
       const project = await getProject(slug);
 
+      console.log('project', project);
+
       if (!project) {
         throw new Error('Project not found');
       }
 
       const projectAlternatives = await generateProjectAlternatives(
         name,
-        alternatives.map(alternative => alternative.name)
+        alternatives.map(alternative => alternative.name),
+        ai_description
       );
 
       const { alternatives: assignedAlternativeNames, alternativesToAdd } =
@@ -176,8 +184,6 @@ export const handleProjectCreated = inngest.createFunction(
     });
 
     await Promise.all([
-      updateRepoStats,
-      updateLicense,
       createProjectContent,
       createProjectCategories,
       createProjectAlternatives,

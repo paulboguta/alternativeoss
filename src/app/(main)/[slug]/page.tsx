@@ -110,7 +110,7 @@ export async function generateStaticParams() {
 
 const findProject = cache(async (props: PageProps) => {
   const { slug } = await props.params;
-
+  
   const project = await getProject(slug);
 
   if (!project || !isValidProjectData(project)) {

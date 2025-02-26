@@ -2,7 +2,7 @@ import { db } from '@/db';
 import { licenses, projectLicenses } from '@/db/schema';
 import { License } from '@/types/license';
 import { eq } from 'drizzle-orm';
-import { unstable_cacheTag as cacheTag } from 'next/cache';
+import { unstable_cacheTag as cacheTag, revalidateTag } from 'next/cache';
 
 export const checkIfLicenseExists = async (key: string): Promise<License> => {
   const license = await db.select().from(licenses).where(eq(licenses.key, key));
@@ -38,4 +38,8 @@ export const updateLicenseProjectTable = async (licenseId: number, projectId: nu
     licenseId,
     projectId,
   });
+
+  // Revalidate cache tags
+  revalidateTag(`license/${projectId}`);
+  revalidateTag(`project/${projectId}`);
 };

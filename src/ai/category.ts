@@ -2,7 +2,8 @@ import { anthropic, CLAUDE_MODELS, cleanClaudeResponse } from "./core";
 
 export async function generateProjectCategories(
   projectName: string,
-  categories: string[]
+  categories: string[],
+  ai_description?: string
 ) {
   const response = await anthropic.messages.create({
     model: CLAUDE_MODELS.SONNET,
@@ -20,6 +21,7 @@ export async function generateProjectCategories(
     ${JSON.stringify({
       projectName,
       categories,
+      additionalContext: ai_description || "",
     })}
     </data_inputs>
     
@@ -47,6 +49,7 @@ export async function generateProjectCategories(
     2. The weight for the reasoning should be: 70% your knowledge, 30% the data provided
     3. You should not add any other text or formatting. Only the JSON object.
     4. You should not force assigning categories if there are no relevant ones - just add new categories.
+    5. If ai_description is provided, use it to enhance your understanding of the project.
     `.trim(),
       },
     ],

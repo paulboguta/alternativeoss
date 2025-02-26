@@ -41,7 +41,7 @@ async function ProjectsContent({
             summary={project.summary!}
             url={project.url!}
             repoStars={project.repoStars!}
-            license={project.license.name}
+            license={project.license?.name}
             repoLastCommit={project.repoLastCommit!}
           />
         ))}

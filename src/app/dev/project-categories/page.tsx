@@ -2,7 +2,7 @@ import { ProjectCategoriesPageClient } from '@/components/dev/project-categories
 import { db } from '@/db';
 import { categories, projectCategories, projects } from '@/db/schema';
 import { enhanceProjectsWithFavicons } from '@/utils/data-table-helpers';
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
@@ -12,7 +12,7 @@ async function ProjectCategoriesContent() {
   const enhancedProjects = enhanceProjectsWithFavicons(allProjects);
 
   // Get all categories
-  const allCategories = await db.select().from(categories);
+  const allCategories = await db.select().from(categories).orderBy(asc(categories.name));
 
   // Get all connections with related data
   const connections = await Promise.all(

@@ -7,6 +7,7 @@ export const createProjectFormSchema = z.object({
   url: z.string().url().optional().or(z.literal('')),
   repoUrl: z.string().url().optional().or(z.literal('')),
   affiliateCode: z.string().optional(),
+  ai_description: z.string().optional(),
 });
 
 export type CreateProjectForm = z.infer<typeof createProjectFormSchema>;
@@ -26,11 +27,12 @@ export function isValidProjectData(project: RequiredProjectData): project is Req
   return (
     !!project &&
     typeof project.id === 'number' &&
-    typeof project.url === 'string' &&
-    typeof project.repoUrl === 'string' &&
+    (project.url === null || typeof project.url === 'string') &&
+    (project.repoUrl === null || typeof project.repoUrl === 'string') &&
     typeof project.name === 'string' &&
-    typeof project.summary === 'string' &&
-    typeof project.longDescription === 'string' &&
-    Array.isArray(project.features)
+    typeof project.slug === 'string' &&
+    (project.summary === null || typeof project.summary === 'string') &&
+    (project.longDescription === null || typeof project.longDescription === 'string') &&
+    (project.features === null || Array.isArray(project.features))
   );
 }

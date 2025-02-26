@@ -6,7 +6,7 @@ type ProjectStatsProps = {
   stars: number;
   forks: number;
   lastCommit: Date;
-  license: License;
+  license?: License | null;
 };
 
 export function ProjectStats({ stars, forks, lastCommit, license }: ProjectStatsProps) {

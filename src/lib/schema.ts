@@ -38,7 +38,7 @@ interface ProjectWithLicense extends RequiredProjectData {
   license?: {
     name: string;
     key: string;
-  };
+  } | null;
   logoUrl?: string;
   repoStars?: number | null;
   repoForks?: number | null;
@@ -99,7 +99,7 @@ export function generateProjectJsonLd(project: ProjectWithLicense): JsonLdSoftwa
   }
 
   // Add license if available
-  if (project.license?.name) {
+  if (project.license && project.license.name) {
     jsonLd.license = `https://spdx.org/licenses/${project.license.key}.html`;
   }
 
