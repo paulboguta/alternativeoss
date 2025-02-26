@@ -8,35 +8,37 @@ import { cn } from "@/lib/utils";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-dashed bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ">
+    <header className="sticky top-0 z-50 w-full border-b border-dashed bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container-wrapper px-8">
         <div className="flex h-14 items-center">
           <Nav />
-          <div className="flex flex-1 items-center justify-between gap-2 md:justify-end ">
+          <div className="flex flex-1 items-center justify-between gap-2 md:justify-end">
             {/* // ** SEARCH IN 0.3 ** */}
             {/* <div className="w-full flex-1 md:w-auto md:flex-none">
-              <CommandMenu /  >
+              <CommandMenu />
             </div> */}
             <nav className="flex items-center gap-0.5">
-              {/* // ** OPEN SOURCE REPO IN 1.0 */}
-              {/*
+              <div className="text-xs text-muted-foreground bg-muted/40 rounded px-2 py-1">
+                <div className="flex items-center gap-2">
+                  Beta
+                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                </div>
+              </div>
               <Button
                 asChild
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 px-0"
+                className="h-8 w-8 px-0 fill-white"
               >
-                 <Link
+                <Link
                   href={websiteConfig.links.github}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Icons.gitHub className="h-4 w-4" />
+                  <Icons.gitHub className="h-5 w-5" />
                   <span className="sr-only">GitHub</span>
                 </Link>
               </Button>
-               */}
-
               <Button
                 asChild
                 variant="ghost"
@@ -48,7 +50,7 @@ export function Header() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Icons.twitter className="h-4 w-4" />
+                  <Icons.twitter className="h-5 w-5" />
                   <span className="sr-only">Twitter</span>
                 </Link>
               </Button>
