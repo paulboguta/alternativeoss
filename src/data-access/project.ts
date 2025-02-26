@@ -156,7 +156,7 @@ export const getProjectsByCategory = async (slug: string) => {
   const category = await getCategory(slug);
 
   if (!category) {
-    return { projects: [] };
+    return { projects: [], category: null };
   }
 
   const result = await db
@@ -172,6 +172,7 @@ export const getProjectsByCategory = async (slug: string) => {
       ...result.projects,
       license: result.licenses,
     })),
+    category,
   };
 };
 

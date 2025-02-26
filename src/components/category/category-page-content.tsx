@@ -1,10 +1,17 @@
 import { ProjectCard } from '@/components/project/project-card';
-import { getProjectsByCategory } from '@/data-access/project';
+import { Project } from '@/db/types';
+import { License } from '@/types/license';
 import { notFound } from 'next/navigation';
 
-export async function CategoryPageContent({ slug }: { slug: string }) {
-  const { projects } = await getProjectsByCategory(slug);
+type ProjectWithLicense = Project & {
+  license: License;
+};
 
+type CategoryPageContentProps = {
+  projects: ProjectWithLicense[];
+};
+
+export async function CategoryPageContent({ projects }: CategoryPageContentProps) {
   if (!projects) {
     notFound();
   }
@@ -18,7 +25,7 @@ export async function CategoryPageContent({ slug }: { slug: string }) {
           summary={project.summary!}
           url={project.url!}
           repoStars={project.repoStars!}
-          license={project.license.name}
+          license={project.license?.name ?? ''}
           repoLastCommit={project.repoLastCommit!}
         />
       ))}

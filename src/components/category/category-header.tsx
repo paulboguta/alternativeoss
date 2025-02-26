@@ -7,17 +7,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { getCategory } from '@/data-access/category';
+import { Category } from '@/db/types';
 import { Command, HomeIcon } from 'lucide-react';
-import { notFound } from 'next/navigation';
 
-export async function CategoryHeader({ slug }: { slug: string }) {
-  const category = await getCategory(slug);
-
-  if (!category) {
-    notFound();
-  }
-
+export async function CategoryHeader({ category }: { category: Category }) {
   return (
     <>
       <Breadcrumb className="mt-4">

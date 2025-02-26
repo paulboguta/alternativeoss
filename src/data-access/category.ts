@@ -1,7 +1,8 @@
-import { db } from "@/db";
-import { categories, projectCategories } from "@/db/schema";
-import { generateSlug } from "@/utils/slug";
-import { eq } from "drizzle-orm";
+import { db } from '@/db';
+import { categories, projectCategories } from '@/db/schema';
+import { generateSlug } from '@/utils/slug';
+import { eq } from 'drizzle-orm';
+import { cacheTag } from 'next/dist/server/use-cache/cache-tag';
 
 export const checkIfCategoryExists = async (name: string) => {
   const category = await db.query.categories.findFirst({
@@ -27,19 +28,16 @@ export const getCategories = async () => {
 };
 
 export const getCategory = async (slug: string) => {
-  const category = await db
-    .select()
-    .from(categories)
-    .where(eq(categories.slug, slug));
+  'use cache';
+  cacheTag(`category/${slug}`);
+
+  const category = await db.select().from(categories).where(eq(categories.slug, slug));
 
   return category[0];
 };
 
-export const updateProjectCategories = async (
-  projectId: number,
-  categoriesIds: number[]
-) => {
+export const updateProjectCategories = async (projectId: number, categoriesIds: number[]) => {
   await db
     .insert(projectCategories)
-    .values(categoriesIds.map((categoryId) => ({ projectId, categoryId })));
+    .values(categoriesIds.map(categoryId => ({ projectId, categoryId })));
 };
