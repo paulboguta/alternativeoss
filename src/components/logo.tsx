@@ -10,7 +10,7 @@ export function Logo({ className }: LogoProps) {
     <div 
       className={cn("relative w-[60px] h-[24px]", className)}
     >
-      {/* Vector 1 - Base vector, stays in place */}
+      
       <div 
         className="absolute top-1 -left-3 w-full h-full"
       >
@@ -24,11 +24,11 @@ export function Logo({ className }: LogoProps) {
         />
       </div>
       
-      {/* Vector 2 - Extends at 50° angle (60° - 10° to the left) */}
+      
       <div 
         className={cn(
           "absolute top-1 -left-3 w-full h-full transition-all duration-300 ease-out",
-          "transform translate-x-[3.5px] -translate-y-[3.0px] group-hover:translate-x-[4.7px] group-hover:-translate-y-[4.0px]"
+          "transform translate-x-[2.5px] -translate-y-[3.8px] group-hover:translate-x-[3.4px] group-hover:-translate-y-[5.1px]"
         )}
       >
         <OptimizedImage 
@@ -41,11 +41,11 @@ export function Logo({ className }: LogoProps) {
         />
       </div>
       
-      {/* Vector 3 - Extends at 50° angle (60° - 10° to the left) */}
+      
       <div 
         className={cn(
           "absolute top-1 -left-3 w-full h-full transition-all duration-300 ease-out",
-          "transform translate-x-[7.0px] -translate-y-[5.9px] group-hover:translate-x-[9.6px] group-hover:-translate-y-[8.0px]"
+          "transform translate-x-[5.0px] -translate-y-[7.6px] group-hover:translate-x-[6.8px] group-hover:-translate-y-[10.2px]"
         )}
       >
         <OptimizedImage 
@@ -58,11 +58,11 @@ export function Logo({ className }: LogoProps) {
         />
       </div>
       
-      {/* Vector 4 - Extends at 50° angle (60° - 10° to the left) */}
+      
       <div 
         className={cn(
           "absolute top-1 -left-3 w-full h-full transition-all duration-300 ease-out",
-          "transform translate-x-[10.6px] -translate-y-[8.9px] group-hover:translate-x-[14.3px] group-hover:-translate-y-[12.0px]"
+          "transform translate-x-[7.5px] -translate-y-[11.4px] group-hover:translate-x-[10.2px] group-hover:-translate-y-[15.3px]"
         )}
       >
         <OptimizedImage 
