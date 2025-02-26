@@ -1,6 +1,6 @@
+import { OptimizedImage } from '@/components/ui/optimized-image';
 import { getFaviconUrl } from '@/lib/favicon';
 import { generateSlug } from '@/utils/slug';
-import Image from 'next/image';
 import Link from 'next/link';
 
 type Alternative = {
@@ -31,12 +31,13 @@ export function ProjectAlternatives({ alternatives }: ProjectAlternativesProps) 
             className="group hover:bg-accent/50 flex w-fit items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors"
           >
             <div className="flex items-center justify-center rounded-md">
-              <Image
+              <OptimizedImage
                 src={getFaviconUrl(alt.alternatives.url || '')}
                 alt={`${alt.alternatives.name} favicon`}
                 width={12}
                 height={12}
                 className="rounded-sm"
+                isIcon
               />
             </div>
             <span className="group-hover:text-foreground text-muted-foreground text-xs font-medium">
