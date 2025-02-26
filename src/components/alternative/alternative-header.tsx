@@ -7,19 +7,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { getAlternative } from '@/data-access/alternative';
+import { Alternative } from '@/db/types';
 import { getFaviconUrl } from '@/lib/favicon';
 import { Command, HomeIcon } from 'lucide-react';
-import { notFound } from 'next/navigation';
 import { OptimizedImage } from '../ui/optimized-image';
 
-export async function AlternativeHeader({ slug }: { slug: string }) {
-  const alternative = await getAlternative(slug);
-
-  if (!alternative) {
-    notFound();
-  }
-
+export async function AlternativeHeader({ alternative }: { alternative: Alternative }) {
   return (
     <>
       <Breadcrumb className="mt-4">

@@ -1,31 +1,32 @@
-import { Icons } from '@/components/icons';
-import { OtherCategories } from '@/components/project/other-categories';
-import { ProjectAlternatives } from '@/components/project/project-alternatives';
-import { ProjectCategories } from '@/components/project/project-categories';
+import { RightSidebar } from '@/components/project/left-sidebar';
 import { ProjectContent } from '@/components/project/project-content';
-import { ProjectStats } from '@/components/project/project-stats';
 import {
   AlternativesSkeleton,
   CategoriesSkeleton,
   OtherCategoriesSkeleton,
   ProjectStatsSkeleton,
 } from '@/components/project/skeleton-project-page';
-import { Button } from '@/components/ui/button';
 import {
   getOtherCategoriesWithCount,
   getProject,
   getProjectAlternatives,
   getProjectCategoriesWithCount,
-  getProjectRepoStats,
   getProjects,
 } from '@/data-access/project';
 import { isValidProjectData } from '@/types/project';
-import Link from 'next/link';
 
+import { OtherCategories } from '@/components/project/other-categories';
+import { ProjectAlternatives } from '@/components/project/project-alternatives';
+import { ProjectCategories } from '@/components/project/project-categories';
+import { unstable_cacheTag as cacheTag } from 'next/cache';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
+import { SearchParams } from 'nuqs/server';
+import { cache, Suspense } from 'react';
 
-type Params = Promise<{ slug: string }>;
+type PageProps = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<SearchParams>;
+};
 
 export async function generateStaticParams() {
   const projects = await getProjects();
@@ -35,11 +36,26 @@ export async function generateStaticParams() {
   }));
 }
 
-async function LeftSidebar({ id }: { id: number }) {
+const findProject = cache(async (props: PageProps) => {
+  const { slug } = await props.params;
+
+  const project = await getProject(slug);
+
+  if (!project || !isValidProjectData(project)) {
+    notFound();
+  }
+
+  return project;
+});
+
+async function LeftSidebar({ projectId }: { projectId: number }) {
+  'use cache';
+  cacheTag(`project/${projectId}`);
+
   const [projectCategories, otherCategories, projectAlternatives] = await Promise.all([
-    getProjectCategoriesWithCount(id),
-    getOtherCategoriesWithCount(id),
-    getProjectAlternatives(id),
+    getProjectCategoriesWithCount(projectId),
+    getOtherCategoriesWithCount(projectId),
+    getProjectAlternatives(projectId),
   ]);
 
   return (
@@ -53,42 +69,8 @@ async function LeftSidebar({ id }: { id: number }) {
   );
 }
 
-async function RightSidebar({ projectId }: { projectId: number }) {
-  const repoStats = await getProjectRepoStats(projectId);
-
-  if (!repoStats || !repoStats.repoStars || !repoStats.repoForks || !repoStats.repoLastCommit) {
-    return null;
-  }
-
-  const { repoUrl, repoStars, repoForks, repoLastCommit, license } = repoStats;
-
-  return (
-    <aside className="hidden px-8 py-8 lg:block">
-      <div className="sticky top-24 space-y-4">
-        <ProjectStats
-          stars={repoStars}
-          forks={repoForks}
-          lastCommit={repoLastCommit}
-          license={license}
-        />
-        <Button variant="outline" size="lg" className="w-full" asChild>
-          <Link href={repoUrl || ''} target="_blank" rel="noopener noreferrer">
-            <Icons.gitHub />
-            View Repository
-          </Link>
-        </Button>
-      </div>
-    </aside>
-  );
-}
-
-export default async function ProjectPage(props: { params: Params }) {
-  const { slug } = await props.params;
-  const projectData = await getProject(slug);
-
-  if (!projectData || !isValidProjectData(projectData)) {
-    notFound();
-  }
+export default async function ProjectPage(props: PageProps) {
+  const project = await findProject(props);
 
   return (
     <div className="relative min-h-screen">
@@ -104,15 +86,15 @@ export default async function ProjectPage(props: { params: Params }) {
             </aside>
           }
         >
-          <LeftSidebar id={projectData.id} />
+          <LeftSidebar projectId={project.id} />
         </Suspense>
 
         <main className="w-full min-w-0 py-8">
-          <ProjectContent project={projectData} />
+          <ProjectContent project={project} />
         </main>
 
         <Suspense fallback={<ProjectStatsSkeleton />}>
-          <RightSidebar projectId={projectData.id} />
+          <RightSidebar slug={project.slug} />
         </Suspense>
       </div>
     </div>

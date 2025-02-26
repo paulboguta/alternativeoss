@@ -7,12 +7,12 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 import { env } from '@/env';
 import { getFaviconUrl } from '@/lib/favicon';
 import { RequiredProjectData } from '@/types/project';
 import { buildProjectUrl } from '@/utils/url';
 import { ArrowRightIcon, Command, HomeIcon } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Icons } from '../icons';
 
@@ -51,12 +51,13 @@ function ProjectHeader({ name, url, repoUrl }: { name: string; url: string; repo
     <div className="space-y-4 lg:flex lg:items-start lg:justify-between lg:space-y-0">
       <div className="flex items-center gap-4">
         <div className="flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-300/10 p-1.5">
-          <Image
+          <OptimizedImage
             src={getFaviconUrl(url)}
             alt={`${name} favicon`}
             width={32}
             height={32}
             className="rounded-sm"
+            isIcon
           />
         </div>
         <h1 className="text-3xl font-bold">{name}</h1>
@@ -87,12 +88,13 @@ function ProjectHeader({ name, url, repoUrl }: { name: string; url: string; repo
 function ProjectScreenshot({ slug, name }: { slug: string; name: string }) {
   return (
     <div className="bg-muted/30 relative aspect-video w-full overflow-hidden rounded-lg border">
-      <Image
+      <OptimizedImage
         src={`${env.NEXT_PUBLIC_CDN_URL}/${slug}.webp`}
         alt={`${name} demo screenshot`}
         fill
         className="object-cover object-center"
         priority
+        role="hero"
       />
     </div>
   );
@@ -118,7 +120,7 @@ export function ProjectContent({ project }: PageContentProps) {
   return (
     <div className="space-y-8">
       <ProjectBreadcrumb projectName={project.name} />
-      <ProjectHeader name={project.name} url={project.url || ''} repoUrl={project.repoUrl} />
+      <ProjectHeader name={project.name} url={project.url || ''} repoUrl={project.repoUrl || ''} />
       <p className="text-muted-foreground">{project.summary}</p>
 
       {/* ProjectStats is now handled at the page level */}
@@ -128,7 +130,7 @@ export function ProjectContent({ project }: PageContentProps) {
           <h2 className="text-2xl font-semibold tracking-tight">About {project.name}</h2>
           <p className="text-muted-foreground leading-relaxed">{project.longDescription}</p>
         </div>
-        <ProjectFeatures features={project.features} />
+        <ProjectFeatures features={project.features || []} />
       </div>
     </div>
   );

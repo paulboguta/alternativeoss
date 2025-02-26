@@ -5,9 +5,13 @@ import { CategoryContentSkeleton } from '@/components/category/skeleton-category
 import { getCategories } from '@/data-access/category';
 import { getProjectsByCategory } from '@/data-access/project';
 import { notFound } from 'next/navigation';
+import { SearchParams } from 'nuqs/server';
 import { cache, Suspense } from 'react';
 
-type Params = Promise<{ slug: string }>;
+type PageProps = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<SearchParams>;
+};
 
 export async function generateStaticParams() {
   const categories = await getCategories();
@@ -17,7 +21,9 @@ export async function generateStaticParams() {
   }));
 }
 
-const findCategory = cache(async (slug: string) => {
+const findCategory = cache(async (props: PageProps) => {
+  const { slug } = await props.params;
+
   const { category, projects } = await getProjectsByCategory(slug);
 
   if (!category) {
@@ -27,14 +33,8 @@ const findCategory = cache(async (slug: string) => {
   return { category, projects };
 });
 
-export default async function CategoryPage(props: { params: Params }) {
-  const { slug } = await props.params;
-
-  if (!slug) {
-    notFound();
-  }
-
-  const { category, projects } = await findCategory(slug);
+export default async function CategoryPage(props: PageProps) {
+  const { category, projects } = await findCategory(props);
 
   if (!projects || !category) {
     notFound();
@@ -46,11 +46,11 @@ export default async function CategoryPage(props: { params: Params }) {
         <CategoryHeader category={category} />
       </Suspense>
 
-      <section className="pb-24">
-        <Suspense fallback={<CategoryContentSkeleton />}>
+      <Suspense fallback={<CategoryContentSkeleton />}>
+        <section className="pb-24">
           <CategoryPageContent projects={projects} />
-        </Suspense>
-      </section>
+        </section>
+      </Suspense>
     </div>
   );
 }

@@ -60,11 +60,17 @@ export const getProject = async (slug: string) => {
       slug: projects.slug,
       url: projects.url,
       repoUrl: projects.repoUrl,
+      repoStars: projects.repoStars,
+      repoForks: projects.repoForks,
+      repoLastCommit: projects.repoLastCommit,
       summary: projects.summary,
       longDescription: projects.longDescription,
       features: projects.features,
+      license: licenses,
     })
     .from(projects)
+    .innerJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
+    .innerJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
     .where(eq(projects.slug, slug));
 
   return project[0];
@@ -200,6 +206,7 @@ export const getProjectsByAlternative = async (slug: string) => {
       ...result.projects,
       license: result.licenses,
     })),
+    alternative,
   };
 };
 

@@ -1,8 +1,8 @@
 import { Icons } from '@/components/icons';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 import { Separator } from '@/components/ui/separator';
 import { getFaviconUrl } from '@/lib/favicon';
 import { generateSlug } from '@/utils/slug';
-import Image from 'next/image';
 import Link from 'next/link';
 
 type ProjectCardProps = {
@@ -36,12 +36,13 @@ export function ProjectCard({
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
             <h3 className="flex items-center gap-2 leading-none font-semibold tracking-tight">
-              <Image
+              <OptimizedImage
                 src={getFaviconUrl(url)}
                 alt={`${name} favicon`}
                 width={20}
                 height={20}
                 className="rounded-sm"
+                isIcon
               />
               <span className="text-foreground">{name}</span>
             </h3>
