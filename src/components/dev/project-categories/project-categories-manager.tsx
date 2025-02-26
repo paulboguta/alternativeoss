@@ -5,6 +5,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 import {
   Select,
   SelectContent,
@@ -16,7 +17,6 @@ import type { categories, projects } from '@/db/schema';
 import { WithFavicon } from '@/utils/data-table-helpers';
 import { InferSelectModel } from 'drizzle-orm';
 import { X } from 'lucide-react';
-import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -109,7 +109,8 @@ export function ProjectCategoriesManager({
                       <SelectItem key={project.id} value={project.id.toString()}>
                         <div className="flex items-center gap-2">
                           <div className="relative h-4 w-4 overflow-hidden rounded-sm">
-                            <Image
+                            <OptimizedImage
+                              isIcon={true}
                               src={project.faviconUrl}
                               alt=""
                               fill
@@ -158,7 +159,13 @@ export function ProjectCategoriesManager({
             <CardTitle>
               <div className="flex items-center gap-2">
                 <div className="relative h-5 w-5 overflow-hidden rounded-sm">
-                  <Image src={selectedProject.faviconUrl} alt="" fill className="object-contain" />
+                  <OptimizedImage
+                    isIcon={true}
+                    src={selectedProject.faviconUrl}
+                    alt=""
+                    fill
+                    className="object-contain"
+                  />
                 </div>
                 {selectedProject.name} Categories
               </div>

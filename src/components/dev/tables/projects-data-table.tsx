@@ -13,12 +13,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 import { projects } from '@/db/schema';
 import { WithFavicon } from '@/utils/data-table-helpers';
 import { ColumnDef } from '@tanstack/react-table';
 import { InferSelectModel } from 'drizzle-orm';
 import { MoreHorizontal, Pencil, Trash } from 'lucide-react';
-import Image from 'next/image';
 
 type Project = InferSelectModel<typeof projects>;
 type ProjectWithFavicon = WithFavicon<Project>;
@@ -60,12 +60,12 @@ export const columns: ColumnDef<ProjectWithFavicon>[] = [
       return (
         <div className="flex items-center justify-center">
           <div className="relative h-8 w-8 overflow-hidden rounded-full">
-            <Image
+            <OptimizedImage
+              isIcon={true}
               src={project.faviconUrl}
               alt={`${project.name} favicon`}
               className="object-contain"
               fill
-              sizes="32px"
             />
           </div>
         </div>
