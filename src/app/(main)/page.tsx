@@ -8,8 +8,8 @@ import { Suspense } from 'react';
 
 export default function HomePage(props: { searchParams: Promise<SearchParams> }) {
   return (
-    <div className="px-8">
-      <section className="mx-auto flex flex-col gap-3 py-8 md:py-12 md:pb-8 lg:py-24 lg:pb-20">
+    <div>
+      <section className="mx-auto mb-6 flex flex-col gap-3 px-8 py-12 lg:py-20">
         <h1 className="text-3xl leading-[1.1] font-bold tracking-tight">
           Discover Open Source Software
         </h1>
@@ -20,7 +20,7 @@ export default function HomePage(props: { searchParams: Promise<SearchParams> })
         <Toolbar searchParams={props.searchParams} />
       </Suspense>
 
-      <section className="pb-24">
+      <section className="px-8 pb-24">
         <Suspense fallback={<SkeletonProjectsContent />}>
           <ProjectsContent searchParams={props.searchParams} />
         </Suspense>

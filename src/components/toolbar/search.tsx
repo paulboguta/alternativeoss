@@ -17,8 +17,14 @@ export function Search() {
   }, [debouncedSearchTerm, updateSearchParams]);
 
   return (
-    <div className="relative w-full max-w-sm">
-      <SearchIcon className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+    <div className="relative w-full sm:max-w-sm">
+      {isPending ? (
+        <div className="absolute top-2.5 left-2.5 h-4 w-4">
+          <LoadingIndicator />
+        </div>
+      ) : (
+        <SearchIcon className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+      )}
       <Input
         type="search"
         placeholder="Search projects..."
@@ -27,11 +33,6 @@ export function Search() {
         onChange={e => handleSearchChange(e.target.value)}
         aria-label="Search projects"
       />
-      {isPending && (
-        <div className="absolute top-2.5 right-2.5 h-4 w-4">
-          <LoadingIndicator />
-        </div>
-      )}
     </div>
   );
 }

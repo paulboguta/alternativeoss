@@ -61,7 +61,7 @@ export async function ProjectsContent({
           ))
         ) : (
           <div className="col-span-3 py-8 text-center">
-            <h3 className="text-lg font-medium">No projects found</h3>
+            <h3 className="text-muted-foreground text-lg font-medium">No projects found</h3>
             <p className="text-muted-foreground">
               {searchQuery
                 ? `No projects match your search for "${searchQuery}"`
@@ -71,7 +71,7 @@ export async function ProjectsContent({
         )}
       </div>
 
-      {paginatedProjects.length > 0 && (
+      {pagination.totalPages > 1 && (
         <div className="mt-8 flex justify-center">
           <Pagination
             currentPage={pagination.currentPage}

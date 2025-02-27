@@ -15,7 +15,7 @@ export async function Toolbar({ searchParams }: { searchParams: Promise<SearchPa
   };
 
   return (
-    <div className="mb-6 flex w-full items-center justify-between">
+    <div className="mb-6 flex w-full flex-col items-start justify-start gap-4 border-y border-dashed px-8 py-4 sm:flex-row sm:items-center">
       <Search />
       <Sorting defaultSort={defaultSort} />
     </div>

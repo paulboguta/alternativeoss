@@ -27,7 +27,7 @@ export function Sorting({ defaultSort }: SortingProps) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 gap-1 md:gap-2">
+        <Button variant="outline" size="sm" className="h-9 gap-1 md:gap-2">
           {isLoading ? <LoadingIndicator /> : <SortDesc className="h-3.5 w-3.5" />}
           <span className="font-medium">{currentSortOption?.label || 'Newest'}</span>
         </Button>
