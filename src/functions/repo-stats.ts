@@ -1,16 +1,16 @@
-import { db } from "@/db";
-import { projects } from "@/db/schema";
-import { getGitHubStats } from "@/services/github";
-import { inngest } from "@/services/inngest";
-import { eq } from "drizzle-orm";
+import { db } from '@/db';
+import { projects } from '@/db/schema';
+import { getGitHubStats } from '@/services/github';
+import { inngest } from '@/services/inngest';
+import { eq } from 'drizzle-orm';
 
 // This function will run every 24 hours to update GitHub repository stats
 export const updateGitHubStats = inngest.createFunction(
-  { id: "update-github-stats" },
-  { cron: "TZ=Europe/Paris 0 0 * * *" },
+  { id: 'update-github-stats' },
+  { cron: 'TZ=Europe/Paris 0 0 * * *' },
   async ({ step }) => {
     // Load all projects that have GitHub URLs
-    const allProjects = await step.run("load-projects", async () => {
+    const allProjects = await step.run('load-projects', async () => {
       return db.query.projects.findMany({
         where: (projects, { isNotNull }) => isNotNull(projects.repoUrl),
       });
@@ -18,9 +18,9 @@ export const updateGitHubStats = inngest.createFunction(
 
     // Create events for each project that needs updating
     const events = allProjects
-      .filter((project) => project.repoUrl?.includes("github.com"))
-      .map((project) => ({
-        name: "app/update.project.stats",
+      .filter(project => project.repoUrl?.includes('github.com'))
+      .map(project => ({
+        name: 'app/update.project.stats',
         data: {
           projectId: project.id,
           repoUrl: project.repoUrl!,
@@ -29,7 +29,7 @@ export const updateGitHubStats = inngest.createFunction(
 
     // Send all events in a batch
     if (events.length > 0) {
-      await step.sendEvent("send-update-events", events);
+      await step.sendEvent('send-update-events', events);
     }
 
     return {
@@ -40,22 +40,22 @@ export const updateGitHubStats = inngest.createFunction(
 
 // This function handles updating stats for each project
 export const handleProjectStatsUpdate = inngest.createFunction(
-  { id: "handle-project-stats-update" },
-  { event: "app/update.project.stats" },
+  { id: 'handle-project-stats-update' },
+  { event: 'send-update-events' },
   async ({ event, step }) => {
     const { projectId, repoUrl } = event.data;
 
     // Fetch GitHub stats
-    const repoStats = await step.run("fetch-github-stats", async () => {
+    const repoStats = await step.run('fetch-github-stats', async () => {
       return getGitHubStats(repoUrl);
     });
 
     if (!repoStats) {
-      return { success: false, error: "Failed to fetch GitHub stats" };
+      return { success: false, error: 'Failed to fetch GitHub stats' };
     }
 
     // Update project stats in database
-    await step.run("update-project-stats", async () => {
+    await step.run('update-project-stats', async () => {
       return db
         .update(projects)
         .set({

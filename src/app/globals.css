@@ -9,6 +9,8 @@
   --font-mono: var(--font-geist-mono);
 }
 
+
+
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(240 10% 3.9%);
@@ -98,6 +100,39 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(240 3.7% 15.9%) transparent;
+
+  }
+
+  .dark * {
+      scrollbar-color: hsl(240 3.7% 25%) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(240 3.7% 15.9%);
+    border-radius: 5px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(240 5% 26%);
+  }
+  
+  .dark ::-webkit-scrollbar-thumb {
+    background: hsl(240 3.7% 25%);
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: hsl(240 5% 35%);
   }
 
   .container-wrapper {

@@ -1,11 +1,11 @@
 "use server";
-import { checkIfProjectExistsByUrls } from "@/data-access/project";
 import {
   checkIfSubmissionExists,
   createSubmission,
 } from "@/data-access/submission";
 import { rateLimitByIp } from "@/lib/rate-limiter";
 import { submitProjectSchema } from "@/types/submission";
+import { checkIfProjectExistsByUrlsUseCase } from "@/use-cases/project";
 import { createServerAction } from "zsa";
 
 export const submitProject = createServerAction()
@@ -22,7 +22,7 @@ export const submitProject = createServerAction()
       }
 
       // Check for existing project in the projects table
-      const projectExists = await checkIfProjectExistsByUrls(
+      const projectExists = await checkIfProjectExistsByUrlsUseCase(
         input.websiteUrl,
         input.repoLink
       );
