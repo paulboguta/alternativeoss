@@ -105,7 +105,7 @@ export const addAlternativeToProjectUseCase = async (projectId: number, alternat
 };
 
 export const getProjectsUseCase = async ({
-  searchQuery,
+  searchQuery = '',
   page = 1,
   limit = 10,
   sortField = 'createdAt' as SortField,
@@ -124,13 +124,16 @@ export const getProjectsUseCase = async ({
   const cacheTagParams = [
     searchQuery && `search-${searchQuery}`,
     `page-${page}`,
-    `sort-${sortField}-${sortDirection}`,
+    sortField !== 'createdAt' && `sort-${sortField}`,
+    sortDirection !== 'desc' && `dir-${sortDirection}`,
     Object.keys(filters).length > 0 && `filters-${JSON.stringify(filters)}`,
   ]
     .filter(Boolean)
     .join('-');
 
-  cacheTag(`projects-${cacheTagParams}`);
+  // Use a simpler cache tag if we're using all defaults
+  const cacheKey = cacheTagParams || 'default';
+  cacheTag(`projects-${cacheKey}`);
   cacheLife('days');
 
   const { projects: projectsResult, pagination } = await getProjects({

@@ -38,6 +38,10 @@ export function useSearch(options: UseSearchOptions = {}) {
 
   const updateSearchParams = useCallback(
     (term: string) => {
+      // If the term is the same as what's already in the URL, don't update
+      const currentTerm = searchParams.get(queryParamName) || '';
+      if (term === currentTerm) return;
+
       const params = new URLSearchParams(searchParams);
 
       if (term) {
@@ -46,8 +50,21 @@ export function useSearch(options: UseSearchOptions = {}) {
         params.delete(queryParamName);
       }
 
-      // Reset to page 1 when searching
-      params.set('page', '1');
+      // Only reset to page 1 when the search term actually changes
+      if (term !== currentTerm) {
+        // If we're on page 1 or no page is specified, don't add the page parameter
+        if (params.get('page') === '1') {
+          params.delete('page');
+        } else {
+          params.set('page', '1');
+        }
+      }
+
+      // Clean up URL by removing default sort parameters
+      if (params.get('sort') === 'createdAt' && params.get('dir') === 'desc') {
+        params.delete('sort');
+        params.delete('dir');
+      }
 
       startTransition(() => {
         router.push(`${pathname}?${params.toString()}`);

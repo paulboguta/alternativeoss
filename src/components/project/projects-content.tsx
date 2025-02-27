@@ -18,9 +18,9 @@ export async function ProjectsContent({
   const awaitedParams = await rawSearchParams;
 
   const { page, sort, dir, q } = awaitedParams;
-  const currentPage = page ? searchParams.page.parseServerSide(page) : 1;
-  const sortField = sort ? (sort as SortField) : 'createdAt';
-  const sortDirection = dir ? (dir as SortDirection) : 'desc';
+  const currentPage = page ? searchParams.page.parseServerSide(page) : undefined;
+  const sortField = sort ? (sort as SortField) : undefined;
+  const sortDirection = dir ? (dir as SortDirection) : undefined;
   const searchQuery = q ? searchParams.q.parseServerSide(q) : '';
 
   const result = await getProjectsUseCase({
@@ -35,13 +35,27 @@ export async function ProjectsContent({
 
   const createUrl = (newPage: number) => {
     const params = new URLSearchParams();
-    params.set('page', newPage.toString());
 
-    if (sortField) params.set('sort', sortField);
-    if (sortDirection) params.set('dir', sortDirection);
-    if (searchQuery) params.set('q', searchQuery);
+    // Only add page parameter if it's not page 1
+    if (newPage > 1) {
+      params.set('page', newPage.toString());
+    }
 
-    return `/?${params.toString()}`;
+    // Only add sort parameters if they're not the defaults
+    if (sortField && sortField !== 'createdAt') {
+      params.set('sort', sortField);
+    }
+
+    if (sortDirection && sortDirection !== 'desc') {
+      params.set('dir', sortDirection);
+    }
+
+    if (searchQuery) {
+      params.set('q', searchQuery);
+    }
+
+    const queryString = params.toString();
+    return queryString ? `/?${queryString}` : '/';
   };
 
   return (
