@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { SortDirection, SortField } from '@/config/sorting';
 import { useSorting } from '@/hooks/use-sorting';
-import { Check, Loader2, SortDesc } from 'lucide-react';
+import { Loader2, SortDesc } from 'lucide-react';
 
 type SortingProps = {
   defaultSort?: {
@@ -19,16 +19,9 @@ type SortingProps = {
 };
 
 export function Sorting({ defaultSort }: SortingProps) {
-  const {
-    open,
-    setOpen,
-    isLoading,
-    currentSortField,
-    currentSortDirection,
-    currentSortOption,
-    handleSortChange,
-    sortOptions,
-  } = useSorting({ defaultSort });
+  const { open, setOpen, isLoading, currentSortOption, handleSortChange, sortOptions } = useSorting(
+    { defaultSort }
+  );
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -44,8 +37,6 @@ export function Sorting({ defaultSort }: SortingProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         {sortOptions.map(option => {
-          const isActive =
-            option.field === currentSortField && option.direction === currentSortDirection;
           return (
             <DropdownMenuItem
               key={`${option.field}-${option.direction}`}
@@ -56,7 +47,6 @@ export function Sorting({ defaultSort }: SortingProps) {
                 {option.icon}
                 {option.label}
               </div>
-              {isActive && <Check className="text-primary h-4 w-4" />}
             </DropdownMenuItem>
           );
         })}
