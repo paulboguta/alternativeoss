@@ -32,8 +32,20 @@ export function useSorting({ defaultSort }: UseSortingProps) {
 
   const createSortUrl = (option: SortOption) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set('sort', option.field);
-    params.set('dir', option.direction);
+
+    // Only set sort parameters if they're different from defaults
+    if (option.field !== 'createdAt' || option.direction !== 'desc') {
+      params.set('sort', option.field);
+      params.set('dir', option.direction);
+    } else {
+      // If using default sort, remove the parameters
+      params.delete('sort');
+      params.delete('dir');
+    }
+
+    // Don't reset the page when sorting changes
+    // This allows users to sort while on any page
+
     return `${pathname}?${params.toString()}`;
   };
 
