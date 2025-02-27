@@ -2,6 +2,7 @@ import { SortField } from '@/config/sorting';
 
 import { SortDirection } from '@/config/sorting';
 import { SearchParams } from 'nuqs/server';
+import { Search } from './search';
 import { Sorting } from './sorting';
 
 export async function Toolbar({ searchParams }: { searchParams: Promise<SearchParams> }) {
@@ -14,7 +15,8 @@ export async function Toolbar({ searchParams }: { searchParams: Promise<SearchPa
   };
 
   return (
-    <div className="mb-6 flex w-full justify-end">
+    <div className="mb-6 flex w-full items-center justify-between">
+      <Search />
       <Sorting defaultSort={defaultSort} />
     </div>
   );

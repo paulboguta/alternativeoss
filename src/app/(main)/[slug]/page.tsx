@@ -7,11 +7,11 @@ import {
   ProjectStatsSkeleton,
 } from '@/components/project/skeleton-project-page';
 import {
+  getAllProjects,
   getOtherCategoriesWithCount,
   getProject,
   getProjectAlternatives,
   getProjectCategoriesWithCount,
-  getProjects,
 } from '@/data-access/project';
 import { generateProjectJsonLd } from '@/lib/schema';
 import { isValidProjectData } from '@/types/project';
@@ -23,7 +23,6 @@ import { unstable_cacheTag as cacheTag } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
 import { cache, Suspense } from 'react';
-
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -40,21 +39,22 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   const title = project.name;
-  const description = project.summary || `Explore ${project.name} - an open source software alternative on AlternativeOSS`;
-  
+  const description =
+    project.summary ||
+    `Explore ${project.name} - an open source software alternative on AlternativeOSS`;
+
   const imageUrl = `https://alternativeoss.com/og-image.png`;
 
-  
   return {
     title,
     description,
     openGraph: {
-      type: "article",
-      locale: "en_US",
+      type: 'article',
+      locale: 'en_US',
       url: `https://alternativeoss.com/${slug}`,
       title,
       description,
-      siteName: "AlternativeOSS",
+      siteName: 'AlternativeOSS',
       images: [
         {
           url: imageUrl,
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: PageProps) {
       ],
     },
     twitter: {
-      card: "summary_large_image",
+      card: 'summary_large_image',
       title,
       description,
       images: [imageUrl],
@@ -75,11 +75,11 @@ export async function generateMetadata({ params }: PageProps) {
     },
     keywords: [
       project.name,
-      "open source",
-      "alternative",
-      "software",
-      "OSS",
-      "FOSS",
+      'open source',
+      'alternative',
+      'software',
+      'OSS',
+      'FOSS',
       `${project.name} open source alternative`,
       ...(project.features || []),
     ],
@@ -89,9 +89,9 @@ export async function generateMetadata({ params }: PageProps) {
 // JSON-LD component for the project
 async function ProjectJsonLd({ project }: { project: Awaited<ReturnType<typeof findProject>> }) {
   const jsonLd = generateProjectJsonLd(project);
-  
+
   if (!jsonLd) return null;
-  
+
   return (
     <script
       type="application/ld+json"
@@ -101,7 +101,7 @@ async function ProjectJsonLd({ project }: { project: Awaited<ReturnType<typeof f
 }
 
 export async function generateStaticParams() {
-  const projects = await getProjects();
+  const projects = await getAllProjects();
 
   return projects.map(project => ({
     slug: project.slug,
@@ -110,7 +110,7 @@ export async function generateStaticParams() {
 
 const findProject = cache(async (props: PageProps) => {
   const { slug } = await props.params;
-  
+
   const project = await getProject(slug);
 
   if (!project || !isValidProjectData(project)) {
@@ -140,8 +140,6 @@ async function LeftSidebar({ projectId }: { projectId: number }) {
     </aside>
   );
 }
-
-
 
 export default async function ProjectPage(props: PageProps) {
   const project = await findProject(props);

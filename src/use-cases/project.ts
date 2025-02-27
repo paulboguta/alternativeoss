@@ -4,14 +4,18 @@ import {
   addProjectToCategory,
   createProject,
   findProject,
-  findProjects,
+  getProjects,
   updateProjectContent,
   updateProjectRepoStats,
 } from '@/data-access/project';
 import { projects } from '@/db/schema';
 import { NewProject } from '@/db/types';
-import { asc, desc, eq, or, sql } from 'drizzle-orm';
-import { unstable_cacheTag as cacheTag, revalidateTag } from 'next/cache';
+import { eq, or, sql } from 'drizzle-orm';
+import {
+  unstable_cacheLife as cacheLife,
+  unstable_cacheTag as cacheTag,
+  revalidateTag,
+} from 'next/cache';
 
 export const checkIfProjectExistsUseCase = async (slug: string) => {
   return findProject(eq(projects.slug, slug));
@@ -100,66 +104,48 @@ export const addAlternativeToProjectUseCase = async (projectId: number, alternat
   revalidateTag(`alternative/${alternativeId}`);
 };
 
-export const getSortedProjectsUseCase = async (
-  page: number = 1,
-  limit: number = 10,
-  sortField: SortField = 'createdAt',
-  sortDirection: SortDirection = 'desc'
-) => {
+export const getProjectsUseCase = async ({
+  searchQuery,
+  page = 1,
+  limit = 10,
+  sortField = 'createdAt' as SortField,
+  sortDirection = 'desc' as SortDirection,
+  filters = {},
+}: {
+  searchQuery?: string;
+  page?: number;
+  limit?: number;
+  sortField?: SortField;
+  sortDirection?: SortDirection;
+  filters?: Record<string, unknown>;
+}) => {
   'use cache';
 
-  cacheTag(`projects-page-${page}-sort-${sortField}-${sortDirection}`);
+  const cacheTagParams = [
+    searchQuery && `search-${searchQuery}`,
+    `page-${page}`,
+    `sort-${sortField}-${sortDirection}`,
+    Object.keys(filters).length > 0 && `filters-${JSON.stringify(filters)}`,
+  ]
+    .filter(Boolean)
+    .join('-');
 
-  const offset = (page - 1) * limit;
+  cacheTag(`projects-${cacheTagParams}`);
+  cacheLife('days');
 
-  let orderByClause;
-  if (sortField === 'name') {
-    orderByClause = sortDirection === 'asc' ? asc(projects.name) : desc(projects.name);
-  }
-
-  if (sortField === 'repoStars') {
-    orderByClause = sortDirection === 'asc' ? asc(projects.repoStars) : desc(projects.repoStars);
-  }
-
-  if (sortField === 'repoLastCommit') {
-    orderByClause =
-      sortDirection === 'asc' ? asc(projects.repoLastCommit) : desc(projects.repoLastCommit);
-  }
-
-  if (sortField === 'createdAt') {
-    orderByClause = sortDirection === 'asc' ? asc(projects.createdAt) : desc(projects.createdAt);
-  }
-
-  // Get the projects with sorting
-  const projectsResult = await findProjects(
-    {
-      id: projects.id,
-      name: projects.name,
-      slug: projects.slug,
-      url: projects.url,
-      repoStars: projects.repoStars,
-      repoLastCommit: projects.repoLastCommit,
-      summary: projects.summary,
-    },
-    sql`TRUE`,
-    orderByClause,
+  const { projects: projectsResult, pagination } = await getProjects({
+    searchQuery,
+    page,
     limit,
-    offset
-  );
-
-  // Get total count for pagination
-  const countResult = await findProjects({ count: sql<number>`count(*)` }, sql`TRUE`);
-
-  const totalCount = countResult[0]?.count ? Number(countResult[0].count) : 0;
+    sortField,
+    sortDirection,
+    // TODO: Apply filters when implemented
+    filters: {},
+  });
 
   return {
     projects: projectsResult,
-    pagination: {
-      total: totalCount,
-      totalPages: Math.ceil(totalCount / limit),
-      currentPage: page,
-      limit,
-    },
+    pagination,
     sorting: {
       field: sortField,
       direction: sortDirection,
