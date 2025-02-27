@@ -56,7 +56,7 @@ export function ProjectCard({
           </div>
           <div className="text-muted-foreground flex items-center gap-4 text-sm">
             <span className="text-[13px]">Last commit {formatDate(repoLastCommit)}</span>
-            {license && license !== 'other' && (
+            {license && license !== 'other' && license !== 'unknown' && (
               <>
                 <Separator orientation="vertical" className="h-4" />
                 <span className="uppercase">{license}</span>

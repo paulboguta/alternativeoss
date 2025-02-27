@@ -23,7 +23,7 @@ export function ProjectStats({ stars, forks, lastCommit, license }: ProjectStats
           <span className="font-medium">{forks.toLocaleString()}</span>
           <span className="text-muted-foreground text-xs">forks</span>
         </div>
-        {license && license.name !== 'other' && (
+        {license && license.name !== 'other' && license.name !== 'unknown' && (
           <div className="flex items-center gap-2">
             <Scale className="text-muted-foreground h-4 w-4" />
             <span className="font-medium uppercase">{license.name}</span>
