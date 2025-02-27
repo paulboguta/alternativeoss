@@ -9,49 +9,50 @@ import {
   projects,
 } from '@/db/schema';
 import { NewProject } from '@/db/types';
-import { eq, or, sql } from 'drizzle-orm';
-import { unstable_cacheTag as cacheTag, revalidateTag } from 'next/cache';
+import { eq, sql, SQL } from 'drizzle-orm';
+import { unstable_cacheTag as cacheTag } from 'next/cache';
 import { getAlternative } from './alternative';
 import { getCategory } from './category';
 
-export const checkIfProjectExists = async (slug: string) => {
-  const project = await db.query.projects.findFirst({
-    where: (projects, { eq }) => eq(projects.slug, slug),
-  });
+type ProjectSelectFields<TExtra extends string = never> = Partial<
+  (typeof projects)['_']['columns']
+> &
+  Record<TExtra, SQL<unknown>>;
 
-  return !!project;
+export const findProjects = async <T extends ProjectSelectFields>(
+  select: T,
+  condition: SQL<unknown>,
+  orderBy?: SQL<unknown>,
+  limit?: number,
+  offset?: number
+) => {
+  const query = db.select(select).from(projects).where(condition);
+
+  if (orderBy) {
+    query.orderBy(orderBy);
+  }
+
+  if (limit !== undefined) {
+    query.limit(limit);
+  }
+
+  if (offset !== undefined) {
+    query.offset(offset);
+  }
+
+  const result = await query.execute();
+
+  return result;
 };
 
-export const checkIfProjectExistsByUrls = async (websiteUrl?: string, repoUrl?: string) => {
-  if (!websiteUrl && !repoUrl) return false;
+export const findProject = async (condition: SQL<unknown>): Promise<boolean | null> => {
+  const result = await db.select().from(projects).where(condition).limit(1);
 
-  const existingProject = await db
-    .select()
-    .from(projects)
-    .where(
-      or(
-        websiteUrl ? eq(projects.url, websiteUrl) : undefined,
-        repoUrl ? eq(projects.repoUrl, repoUrl) : undefined
-      )
-    )
-    .limit(1);
-
-  return existingProject.length > 0;
+  return result.length > 0;
 };
 
 export const createProject = async (project: NewProject) => {
   const [newProject] = await db.insert(projects).values(project).returning();
-
-  // Invalidate relevant cache tags
-  revalidateTag('projects');
-  revalidateTag(`projects-count`);
-  revalidateTag(`projects-page-1`); // Ensure the first page is revalidated
-
-  if (newProject) {
-    revalidateTag(`project/${newProject.slug}`);
-    revalidateTag(`project-repo-stats/${newProject.id}`);
-  }
-
   return newProject;
 };
 
@@ -226,7 +227,7 @@ export const updateProjectRepoStats = async (
     lastCommit: string;
   }
 ) => {
-  await db
+  const updatedProjects = await db
     .update(projects)
     .set({
       repoStars: stats.stars,
@@ -235,10 +236,10 @@ export const updateProjectRepoStats = async (
       repoLastCommit: new Date(stats.lastCommit),
       updatedAt: new Date(),
     })
-    .where(eq(projects.slug, slug));
+    .where(eq(projects.slug, slug))
+    .returning();
 
-  // Invalidate project-specific cache
-  revalidateTag(`project/${slug}`);
+  return updatedProjects[0];
 };
 
 export const updateProjectContent = async (
@@ -258,9 +259,6 @@ export const updateProjectContent = async (
     })
     .where(eq(projects.slug, slug))
     .returning();
-
-  // Invalidate project-specific cache
-  revalidateTag(`project/${slug}`);
 
   return project[0];
 };
@@ -353,18 +351,9 @@ export const getProjectAlternatives = async (projectId: number) => {
 // Function to add a project to a category
 export const addProjectToCategory = async (projectId: number, categoryId: number) => {
   await db.insert(projectCategories).values({ projectId, categoryId });
-
-  // Invalidate relevant cache tags
-  revalidateTag(`project-categories/${projectId}`);
-  revalidateTag(`other-categories/${projectId}`);
-  revalidateTag('categories');
 };
 
 // Function to add an alternative to a project
 export const addAlternativeToProject = async (projectId: number, alternativeId: number) => {
   await db.insert(projectAlternatives).values({ projectId, alternativeId });
-
-  // Invalidate relevant cache tags
-  revalidateTag(`project-alternatives/${projectId}`);
-  revalidateTag(`alternative/${alternativeId}`);
 };
