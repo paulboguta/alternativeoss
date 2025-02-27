@@ -131,7 +131,7 @@ async function LeftSidebar({ projectId }: { projectId: number }) {
   ]);
 
   return (
-    <aside className="border-dashed px-0 md:border-r md:px-8 md:py-8">
+    <aside className="border-dashed px-8 pt-4 pb-0 md:border-r md:pt-0">
       <div className="space-y-6 md:sticky md:top-24">
         <ProjectAlternatives alternatives={projectAlternatives} />
         <ProjectCategories categories={projectCategories} />
@@ -151,7 +151,7 @@ export default async function ProjectPage(props: PageProps) {
         <div className="grid grid-cols-1 gap-8 pr-8 md:grid-cols-[300px_auto] lg:grid-cols-[300px_auto_300px] lg:pr-0">
           <Suspense
             fallback={
-              <aside className="border-dashed px-0 md:border-r md:px-8 md:py-8">
+              <aside className="border-dashed px-8 pt-4 pb-0 md:border-r md:pt-0">
                 <div className="space-y-6 md:sticky md:top-24">
                   <AlternativesSkeleton />
                   <CategoriesSkeleton />
@@ -163,7 +163,7 @@ export default async function ProjectPage(props: PageProps) {
             <LeftSidebar projectId={project.id} />
           </Suspense>
 
-          <main className="w-full min-w-0 py-8">
+          <main className="w-full min-w-0 px-8 py-4 md:px-0 md:py-8">
             <ProjectContent project={project} />
           </main>
 

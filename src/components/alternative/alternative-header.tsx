@@ -15,7 +15,7 @@ import { OptimizedImage } from '../ui/optimized-image';
 export async function AlternativeHeader({ alternative }: { alternative: Alternative }) {
   return (
     <>
-      <Breadcrumb className="mt-4">
+      <Breadcrumb className="mt-4 hidden md:block">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="/" className="inline-flex items-center gap-1.5">
@@ -37,8 +37,8 @@ export async function AlternativeHeader({ alternative }: { alternative: Alternat
         </BreadcrumbList>
       </Breadcrumb>
 
-      <section className="mx-auto flex flex-col gap-3 md:py-4 md:pb-8 lg:py-15 lg:pb-20">
-        <div className="flex items-end gap-2">
+      <section className="mx-auto flex flex-col gap-3 py-8 md:pb-8 lg:py-15 lg:pb-20">
+        <div className="flex items-start gap-2 md:items-end">
           <OptimizedImage
             isIcon
             src={getFaviconUrl(alternative.url || '')}
@@ -46,8 +46,9 @@ export async function AlternativeHeader({ alternative }: { alternative: Alternat
             width={32}
             height={32}
           />
+
           <h1 className="text-3xl leading-[1.1] font-bold tracking-tight">{alternative.name}</h1>
-          <span className="text-muted-foreground text-xl font-medium">
+          <span className="text-muted-foreground hidden text-xl font-medium md:inline-block">
             Open Source Alternatives
           </span>
         </div>

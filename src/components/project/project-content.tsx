@@ -22,7 +22,7 @@ type PageContentProps = {
 
 function ProjectBreadcrumb({ projectName }: { projectName: string }) {
   return (
-    <Breadcrumb>
+    <Breadcrumb className="hidden md:block">
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink href="/" className="inline-flex items-center gap-1.5">
