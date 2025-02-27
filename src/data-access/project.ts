@@ -9,46 +9,21 @@ import {
   projects,
 } from '@/db/schema';
 import { NewProject } from '@/db/types';
-import { eq, sql, SQL } from 'drizzle-orm';
+import { eq, ilike, or, sql, SQL } from 'drizzle-orm';
 import { unstable_cacheTag as cacheTag } from 'next/cache';
 import { getAlternative } from './alternative';
 import { getCategory } from './category';
-
-type ProjectSelectFields<TExtra extends string = never> = Partial<
-  (typeof projects)['_']['columns']
-> &
-  Record<TExtra, SQL<unknown>>;
-
-export const findProjects = async <T extends ProjectSelectFields>(
-  select: T,
-  condition: SQL<unknown>,
-  orderBy?: SQL<unknown>,
-  limit?: number,
-  offset?: number
-) => {
-  const query = db.select(select).from(projects).where(condition);
-
-  if (orderBy) {
-    query.orderBy(orderBy);
-  }
-
-  if (limit !== undefined) {
-    query.limit(limit);
-  }
-
-  if (offset !== undefined) {
-    query.offset(offset);
-  }
-
-  const result = await query.execute();
-
-  return result;
-};
 
 export const findProject = async (condition: SQL<unknown>): Promise<boolean | null> => {
   const result = await db.select().from(projects).where(condition).limit(1);
 
   return result.length > 0;
+};
+
+export const getAllProjects = async () => {
+  const result = await db.select({ slug: projects.slug }).from(projects);
+
+  return result;
 };
 
 export const createProject = async (project: NewProject) => {
@@ -104,53 +79,102 @@ export const getProjectRepoStats = async (projectId: number) => {
   return stats[0];
 };
 
-export const getProjects = async () => {
-  'use cache';
-  cacheTag('projects');
-
-  const results = await db
-    .select({
-      name: projects.name,
-      slug: projects.slug,
-      url: projects.url,
-      repoStars: projects.repoStars,
-      repoLastCommit: projects.repoLastCommit,
-      license: licenses,
-      summary: projects.summary,
-    })
-    .from(projects)
-    .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
-    .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id));
-
-  return results;
-};
-
-export const getPaginatedProjects = async (page: number, limit: number) => {
-  'use cache';
-  cacheTag(`projects-page-${page}`);
-  cacheTag(`projects-count`);
-
+export const getProjects = async ({
+  searchQuery = '',
+  page = 1,
+  limit = 10,
+  sortField = 'createdAt',
+  sortDirection = 'desc',
+  // TODO: Apply filters when implemented
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  filters = {},
+}: {
+  searchQuery?: string;
+  page?: number;
+  limit?: number;
+  sortField?: string;
+  sortDirection?: string;
+  filters?: Record<string, unknown>;
+} = {}) => {
   const offset = (page - 1) * limit;
 
-  const results = await db
-    .select({
-      name: projects.name,
-      slug: projects.slug,
-      url: projects.url,
-      repoStars: projects.repoStars,
-      repoLastCommit: projects.repoLastCommit,
-      license: licenses,
-      summary: projects.summary,
-    })
+  // Build the ORDER BY clause
+  const orderByClause = (() => {
+    if (sortField === 'name') {
+      return sortDirection === 'asc' ? sql`projects.name ASC` : sql`projects.name DESC`;
+    }
+
+    if (sortField === 'repoStars') {
+      return sortDirection === 'asc' ? sql`projects.repo_stars ASC` : sql`projects.repo_stars DESC`;
+    }
+
+    if (sortField === 'repoLastCommit') {
+      return sortDirection === 'asc'
+        ? sql`projects.repo_last_commit ASC`
+        : sql`projects.repo_last_commit DESC`;
+    }
+
+    return sortDirection === 'asc' ? sql`projects.created_at ASC` : sql`projects.created_at DESC`;
+  })();
+
+  // Build the WHERE condition
+  let condition = sql`TRUE`;
+
+  // Apply search if query exists
+  if (searchQuery && searchQuery.trim()) {
+    // For full-text search using the search_vector column
+    const searchCondition = sql`projects.search_vector @@ plainto_tsquery('english', ${searchQuery})`;
+
+    // Fallback to ILIKE search for partial matches
+    const fallbackCondition = or(
+      ilike(projects.name, `%${searchQuery}%`),
+      ilike(projects.summary, `%${searchQuery}%`),
+      ilike(projects.longDescription, `%${searchQuery}%`)
+    );
+
+    // Combine both conditions with OR
+    condition = or(searchCondition, fallbackCondition)!;
+  }
+
+  // TODO: Apply filters when implemented
+  // if (filters.someFilter) { ... }
+
+  // Select fields
+  const selectFields = {
+    name: projects.name,
+    slug: projects.slug,
+    url: projects.url,
+    repoStars: projects.repoStars,
+    repoLastCommit: projects.repoLastCommit,
+    license: licenses,
+    summary: projects.summary,
+  };
+
+  // Add rank field for search queries
+  if (searchQuery && searchQuery.trim()) {
+    Object.assign(selectFields, {
+      rank: sql<number>`ts_rank(projects.search_vector, plainto_tsquery('english', ${searchQuery}))`,
+    });
+  }
+
+  // Get the projects
+  const query = db
+    .select(selectFields)
     .from(projects)
     .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
     .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
+    .where(condition)
     .limit(limit)
     .offset(offset);
 
-  const countResult = await db.select({ count: sql<number>`count(*)` }).from(projects);
+  // Apply ordering
+  if (orderByClause) {
+    query.orderBy(orderByClause);
+  }
 
-  const totalCount = countResult[0]?.count ? Number(countResult[0].count) : 0;
+  const results = await query;
+
+  const totalCount = await db.$count(projects, condition);
 
   return {
     projects: results,
@@ -348,12 +372,10 @@ export const getProjectAlternatives = async (projectId: number) => {
   return result;
 };
 
-// Function to add a project to a category
 export const addProjectToCategory = async (projectId: number, categoryId: number) => {
   await db.insert(projectCategories).values({ projectId, categoryId });
 };
 
-// Function to add an alternative to a project
 export const addAlternativeToProject = async (projectId: number, alternativeId: number) => {
   await db.insert(projectAlternatives).values({ projectId, alternativeId });
 };

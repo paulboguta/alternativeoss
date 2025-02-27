@@ -9,7 +9,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { SortDirection, SortField } from '@/config/sorting';
 import { useSorting } from '@/hooks/use-sorting';
-import { Loader2, SortDesc } from 'lucide-react';
+import { SortDesc } from 'lucide-react';
+import { LoadingIndicator } from '../loading-indicator';
 
 type SortingProps = {
   defaultSort?: {
@@ -26,12 +27,8 @@ export function Sorting({ defaultSort }: SortingProps) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 gap-1 md:gap-2">
-          {isLoading ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <SortDesc className="h-3.5 w-3.5" />
-          )}
+        <Button variant="outline" size="sm" className="h-9 gap-1 md:gap-2">
+          {isLoading ? <LoadingIndicator /> : <SortDesc className="h-3.5 w-3.5" />}
           <span className="font-medium">{currentSortOption?.label || 'Newest'}</span>
         </Button>
       </DropdownMenuTrigger>

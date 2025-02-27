@@ -101,8 +101,6 @@ export const handleProjectCreated = inngest.createFunction(
 
       const project = await getProject(slug);
 
-      console.log('project', project);
-
       if (!project) {
         throw new Error('Project not found');
       }
@@ -135,8 +133,6 @@ export const handleProjectCreated = inngest.createFunction(
       const alternatives = await getAlternatives();
 
       const project = await getProject(slug);
-
-      console.log('project', project);
 
       if (!project) {
         throw new Error('Project not found');
