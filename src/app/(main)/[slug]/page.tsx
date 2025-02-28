@@ -19,6 +19,7 @@ import { isValidProjectData } from '@/types/project';
 import { OtherCategories } from '@/components/project/other-categories';
 import { ProjectAlternatives } from '@/components/project/project-alternatives';
 import { ProjectCategories } from '@/components/project/project-categories';
+import { websiteConfig } from '@/config/website';
 import { unstable_cacheTag as cacheTag } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
@@ -43,8 +44,6 @@ export async function generateMetadata({ params }: PageProps) {
     project.summary ||
     `Explore ${project.name} - an open source software alternative on AlternativeOSS`;
 
-  const imageUrl = `https://alternativeoss.com/og-image.png`;
-
   return {
     title,
     description,
@@ -57,7 +56,7 @@ export async function generateMetadata({ params }: PageProps) {
       siteName: 'AlternativeOSS',
       images: [
         {
-          url: imageUrl,
+          url: websiteConfig.links.ogImage,
           width: 1200,
           height: 630,
           alt: `${project.name} - Open Source Software Alternative`,
@@ -68,7 +67,7 @@ export async function generateMetadata({ params }: PageProps) {
       card: 'summary_large_image',
       title,
       description,
-      images: [imageUrl],
+      images: [websiteConfig.links.ogImage],
     },
     alternates: {
       canonical: `https://alternativeoss.com/${slug}`,

@@ -2,6 +2,7 @@ import { CategoryHeader } from '@/components/category/category-header';
 import { CategoryPageContent } from '@/components/category/category-page-content';
 import { CategoryHeaderSkeleton } from '@/components/category/skeleton-category-header';
 import { CategoryContentSkeleton } from '@/components/category/skeleton-category-page-content';
+import { websiteConfig } from '@/config/website';
 import { getCategories } from '@/data-access/category';
 import { getProjectsByCategory } from '@/data-access/project';
 import { generateCategoryJsonLd } from '@/lib/schema';
@@ -25,24 +26,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const title = `${category.name} Open Source Software`;
   const description = `Explore the best open source ${category.name.toLowerCase()} software. Find free and open source alternatives for your ${category.name.toLowerCase()} needs.`;
-  
-  const imageUrl = `https://alternativeoss.com/og-image.png`;
 
   const projectCount = projects?.length || 0;
-  
+
   return {
     title,
     description,
     openGraph: {
-      type: "website",
-      locale: "en_US",
+      type: 'website',
+      locale: 'en_US',
       url: `https://alternativeoss.com/categories/${slug}`,
       title,
       description,
-      siteName: "AlternativeOSS",
+      siteName: 'AlternativeOSS',
       images: [
         {
-          url: imageUrl,
+          url: websiteConfig.links.ogImage,
           width: 1200,
           height: 630,
           alt: `${category.name} Open Source Software - ${projectCount} Projects`,
@@ -50,10 +49,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       ],
     },
     twitter: {
-      card: "summary_large_image",
+      card: 'summary_large_image',
       title,
       description,
-      images: [imageUrl],
+      images: [websiteConfig.links.ogImage],
     },
     alternates: {
       canonical: `https://alternativeoss.com/categories/${slug}`,
@@ -63,26 +62,26 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       `${category.name} software`,
       `${category.name} open source`,
       `${category.name} free software`,
-      "open source",
-      "free software",
-      "OSS",
-      "FOSS",
+      'open source',
+      'free software',
+      'OSS',
+      'FOSS',
     ],
   };
 }
 
 // JSON-LD component for the category
-function CategoryJsonLd({ 
-  category, 
-  projects 
-}: { 
-  category: Awaited<ReturnType<typeof findCategory>>["category"];
-  projects: Awaited<ReturnType<typeof findCategory>>["projects"];
+function CategoryJsonLd({
+  category,
+  projects,
+}: {
+  category: Awaited<ReturnType<typeof findCategory>>['category'];
+  projects: Awaited<ReturnType<typeof findCategory>>['projects'];
 }) {
   const jsonLd = generateCategoryJsonLd(category, projects);
-  
+
   if (!jsonLd) return null;
-  
+
   return (
     <script
       type="application/ld+json"
@@ -90,7 +89,6 @@ function CategoryJsonLd({
     />
   );
 }
-
 
 export async function generateStaticParams() {
   const categories = await getCategories();
@@ -111,7 +109,6 @@ const findCategory = cache(async (props: PageProps) => {
 
   return { category, projects };
 });
-
 
 export default async function CategoryPage(props: PageProps) {
   const { category, projects } = await findCategory(props);
