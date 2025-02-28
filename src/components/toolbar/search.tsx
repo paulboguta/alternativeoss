@@ -8,9 +8,13 @@ import { Search as SearchIcon } from 'lucide-react';
 import { LoadingIndicator } from '../loading-indicator';
 
 export function Search() {
-  const { isPending, setSearchTerm } = useSearch();
+  const { isPending, setSearchTerm, setPage } = useSearch();
 
-  const debouncedSetSearchTerm = debounce(setSearchTerm, 350);
+  const debouncedSetSearchTerm = debounce((value: string) => {
+    setSearchTerm(value);
+    // When user searches, we want to change page query back to 1
+    setPage('1');
+  }, 350);
 
   return (
     <div className="relative w-full sm:max-w-sm">
