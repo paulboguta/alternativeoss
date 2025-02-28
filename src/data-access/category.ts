@@ -1,7 +1,7 @@
 import { db } from '@/db';
 import { categories, projectCategories } from '@/db/schema';
 import { generateSlug } from '@/utils/slug';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { unstable_cacheTag as cacheTag, revalidateTag } from 'next/cache';
 
 export const checkIfCategoryExists = async (name: string) => {
@@ -22,7 +22,26 @@ export const createCategory = async (name: string) => {
 };
 
 export const getCategories = async () => {
+  'use cache';
+  cacheTag('categories');
+
   const result = await db.select().from(categories);
+
+  return result;
+};
+
+export const getCategoriesWithCount = async () => {
+  const result = await db
+    .select({
+      id: categories.id,
+      name: categories.name,
+      slug: categories.slug,
+      count: sql<number>`count(${projectCategories.projectId})::int`,
+    })
+    .from(categories)
+    .leftJoin(projectCategories, eq(categories.id, projectCategories.categoryId))
+    .groupBy(categories.id, categories.name, categories.slug)
+    .orderBy(sql`count(${projectCategories.projectId}) desc`);
 
   return result;
 };
@@ -51,4 +70,5 @@ export const updateProjectCategories = async (projectId: number, categoriesIds: 
   revalidateTag(`project-categories/${projectId}`);
   revalidateTag(`other-categories/${projectId}`);
   revalidateTag('categories');
+  revalidateTag('categories-with-count');
 };

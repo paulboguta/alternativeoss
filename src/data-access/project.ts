@@ -9,7 +9,7 @@ import {
 } from '@/db/schema';
 import { NewProject } from '@/db/types';
 import { eq, ilike, or, sql, SQL } from 'drizzle-orm';
-import { unstable_cacheTag as cacheTag } from 'next/cache';
+import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache';
 import { getAlternative } from './alternative';
 import { getCategory } from './category';
 
@@ -169,6 +169,7 @@ export const getProjects = async ({
 export const getProjectsByCategory = async (slug: string) => {
   'use cache';
   cacheTag(`category/${slug}`);
+  cacheLife('max');
 
   const category = await getCategory(slug);
 

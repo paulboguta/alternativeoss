@@ -234,13 +234,33 @@ export function generateCategoryJsonLd(
 }
 
 /**
- * Generates the script tag with JSON-LD data for a project
- * @param project The project data
- * @returns HTML string with the script tag containing JSON-LD data
+ * Generates JSON-LD structured data for the categories list page using Schema.org ItemList schema
+ * @param categories Array of categories with count
+ * @returns JSON-LD structured data as a JavaScript object
  */
-export function generateProjectJsonLdScript(project: ProjectWithLicense): string {
-  const jsonLd = generateProjectJsonLd(project);
-  if (!jsonLd) return '';
+export function generateCategoriesListJsonLd(
+  categories: Array<{ id: number; name: string; slug: string; count?: number }>
+): JsonLdBase | null {
+  if (!categories || categories.length === 0) return null;
 
-  return `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`;
+  const jsonLd: JsonLdBase = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Open Source Software Categories',
+    description: 'A comprehensive list of open source software categories.',
+    url: 'https://alternativeoss.com/categories',
+    numberOfItems: categories.length,
+    itemListElement: categories.map((category, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `https://alternativeoss.com/categories/${category.slug}`,
+      name: `${category.name}${category.count ? ` (${category.count})` : ''}`,
+      description: `Open source ${category.name.toLowerCase()} software alternatives.`,
+    })),
+  };
+
+  // Clean up undefined and null values
+  return Object.fromEntries(
+    Object.entries(jsonLd).filter(([, value]) => value !== undefined && value !== null)
+  ) as JsonLdBase;
 }
