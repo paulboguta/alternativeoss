@@ -26,6 +26,14 @@ export function useSorting({ defaultSort }: UseSortingProps) {
     throttleMs: 200,
   });
 
+  const [, setPage] = useQueryState('page', {
+    startTransition,
+    shallow: false,
+    clearOnDefault: true,
+    defaultValue: '1',
+    throttleMs: 200,
+  });
+
   const [dir, setDir] = useQueryState('dir', {
     startTransition,
     shallow: false,
@@ -46,6 +54,7 @@ export function useSorting({ defaultSort }: UseSortingProps) {
 
     setSort(option.field);
     setDir(option.direction);
+    setPage('1'); // Reset page to 1 when sorting changes
 
     setOpen(false);
   };
