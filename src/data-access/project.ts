@@ -96,7 +96,8 @@ export const getProjects = async ({
   sortField?: string;
   sortDirection?: string;
   filters?: Record<string, unknown>;
-} = {}) => {
+}) => {
+  // Calculate offset for pagination
   const offset = (page - 1) * limit;
 
   // Build the ORDER BY clause
@@ -160,25 +161,20 @@ export const getProjects = async ({
     });
   }
 
-  // Get the projects
-  const query = db
+  // Optimize query execution by running count and data fetch in parallel
+  const resultsPromise = db
     .select(selectFields)
     .from(projects)
     .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
     .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
     .where(condition)
+    .orderBy(orderByClause)
     .limit(limit)
     .offset(offset);
 
-  // Apply ordering
-  if (orderByClause) {
-    query.orderBy(orderByClause);
-  }
-
-  const resultsPromise = query;
-
   const totalCountPromise = db.$count(projects, condition);
 
+  // Execute both queries in parallel for better performance
   const [results, totalCount] = await Promise.all([resultsPromise, totalCountPromise]);
 
   return {
