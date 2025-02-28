@@ -142,6 +142,7 @@ export const getProjects = async ({
 
   // Select fields
   const selectFields = {
+    id: projects.id,
     name: projects.name,
     slug: projects.slug,
     url: projects.url,
@@ -174,9 +175,9 @@ export const getProjects = async ({
     query.orderBy(orderByClause);
   }
 
-  const resultsPromise = await query;
+  const resultsPromise = query;
 
-  const totalCountPromise = await db.$count(projects, condition);
+  const totalCountPromise = db.$count(projects, condition);
 
   const [results, totalCount] = await Promise.all([resultsPromise, totalCountPromise]);
 
