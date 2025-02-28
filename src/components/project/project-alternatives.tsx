@@ -18,6 +18,7 @@ export function ProjectAlternatives({ alternatives }: ProjectAlternativesProps) 
       <div className="flex w-full flex-wrap gap-x-1">
         {alternatives.map(alt => (
           <Link
+            prefetch={false}
             key={alt.id}
             href={`/alternatives/${alt.slug}`}
             className="group hover:bg-accent/50 flex w-fit items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors"

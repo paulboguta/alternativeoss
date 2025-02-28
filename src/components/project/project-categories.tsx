@@ -18,6 +18,7 @@ export function ProjectCategories({ categories }: ProjectCategoriesProps) {
       <div className="flex flex-wrap gap-1.5">
         {categories.map(category => (
           <Link
+            prefetch={false}
             key={category.categoryId}
             href={`/categories/${generateSlug(category.categoryName)}`}
             className="bg-secondary/50 text-secondary-foreground hover:bg-secondary/80 group inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium transition-colors"

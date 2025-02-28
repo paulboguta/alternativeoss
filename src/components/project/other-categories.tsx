@@ -18,6 +18,7 @@ export function OtherCategories({ categories }: OtherCategoriesProps) {
       <div className="flex flex-col gap-1">
         {categories.map(category => (
           <Link
+            prefetch={false}
             key={category.categoryId}
             href={`/categories/${generateSlug(category.categoryName)}`}
             className="hover:bg-accent/50 group flex items-center justify-between rounded-md px-2 py-1.5 transition-colors"

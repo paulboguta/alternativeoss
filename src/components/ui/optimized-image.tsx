@@ -32,7 +32,9 @@ export function OptimizedImage({
 
   // For small icons and favicons, use unoptimized to avoid transformations
   if (!shouldOptimize) {
-    return <Image className={cn(className)} src={src} alt={alt} unoptimized {...props} />;
+    return (
+      <Image className={cn(className)} src={src} alt={alt} unoptimized {...props} quality={65} />
+    );
   }
 
   // For regular images, apply proper sizes and quality

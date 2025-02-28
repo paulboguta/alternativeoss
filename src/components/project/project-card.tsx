@@ -25,7 +25,7 @@ export function ProjectCard({
   faviconUrl,
 }: ProjectCardProps) {
   return (
-    <Link href={`/${slug}`} className="block">
+    <Link href={`/${slug}`} className="block" prefetch={false}>
       <div className="border-border/50 bg-card hover:bg-muted/10 hover:border-ring/20 ring-ring/8 relative flex h-full flex-col rounded-lg border p-6 shadow-xs transition-all hover:ring-[3px]">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
