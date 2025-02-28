@@ -47,15 +47,17 @@ function OtherCategoriesSkeleton() {
 
 function ProjectStatsSkeleton() {
   return (
-    <div className="bg-card/50 rounded-lg border px-6 py-4">
-      <div className="space-y-3">
-        {Array(4)
-          .fill(0)
-          .map((_, i) => (
-            <Skeleton key={i} className="h-6 w-full" />
-          ))}
+    <aside className="hidden space-y-4 px-8 py-8 lg:block">
+      <div className="bg-card/50 h-fit rounded-lg border px-6 py-4">
+        <div className="space-y-3">
+          {Array(4)
+            .fill(0)
+            .map((_, i) => (
+              <Skeleton key={i} className="h-6 w-full" />
+            ))}
+        </div>
       </div>
-    </div>
+    </aside>
   );
 }
 

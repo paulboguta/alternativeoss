@@ -16,21 +16,19 @@ export async function RightSidebar({ slug }: { slug: string }) {
   }
 
   return (
-    <aside className="hidden px-8 py-8 lg:block">
-      <div className="sticky top-24 space-y-4">
-        <ProjectStats
-          stars={project.repoStars ?? 0}
-          forks={project.repoForks ?? 0}
-          lastCommit={project.repoLastCommit ?? new Date()}
-          license={project.license}
-        />
-        <Button variant="outline" size="lg" className="w-full" asChild>
-          <Link href={project.repoUrl || ''} target="_blank" rel="noopener noreferrer">
-            <Icons.gitHub />
-            View Repository
-          </Link>
-        </Button>
-      </div>
+    <aside className="hidden space-y-4 px-8 py-8 lg:block">
+      <ProjectStats
+        stars={project.repoStars ?? 0}
+        forks={project.repoForks ?? 0}
+        lastCommit={project.repoLastCommit ?? new Date()}
+        license={project.license}
+      />
+      <Button variant="outline" size="lg" className="w-full" asChild>
+        <Link href={project.repoUrl || ''} target="_blank" rel="noopener noreferrer">
+          <Icons.gitHub />
+          View Repository
+        </Link>
+      </Button>
     </aside>
   );
 }
