@@ -1,17 +1,9 @@
-import { env } from "@/env";
+import { websiteConfig } from '@/config/website';
+import { env } from '@/env';
+import PlausibleProvider from 'next-plausible';
 
-import { OpenPanelComponent } from "@openpanel/nextjs";
+export function Analytics({ children }: { children: React.ReactNode }) {
+  if (env.NODE_ENV === 'development') return children;
 
-export default function Analytics() {
-  if (env.NODE_ENV === "development") return null;
-
-  return (
-    <OpenPanelComponent
-      apiUrl="/api/op"
-      clientId={env.OPEN_PANEL_CLIENT_ID!}
-      trackScreenViews={true}
-      trackAttributes={true}
-      trackOutgoingLinks={true}
-    />
-  );
+  return <PlausibleProvider domain={websiteConfig.domain}>{children}</PlausibleProvider>;
 }

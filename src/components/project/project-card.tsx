@@ -1,43 +1,37 @@
 import { Icons } from '@/components/icons';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import { Separator } from '@/components/ui/separator';
-import { getFaviconUrl } from '@/lib/favicon';
-import { generateSlug } from '@/utils/slug';
+import { SVG_PLACEHOLDER } from '@/lib/favicon';
+import { format } from 'date-fns';
 import Link from 'next/link';
 
 type ProjectCardProps = {
+  slug: string;
   name: string;
   summary: string;
-  url: string;
   repoStars: number;
   license?: string | null;
   repoLastCommit: Date;
+  faviconUrl?: string | null;
 };
 
 export function ProjectCard({
+  slug,
   name,
   summary,
-  url,
   repoStars,
   license,
   repoLastCommit,
+  faviconUrl,
 }: ProjectCardProps) {
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(date);
-  };
-
   return (
-    <Link href={`/${generateSlug(name)}`} className="block">
+    <Link href={`/${slug}`} className="block">
       <div className="border-border/50 bg-card hover:bg-muted/10 hover:border-ring/20 ring-ring/8 relative flex h-full flex-col rounded-lg border p-6 shadow-xs transition-all hover:ring-[3px]">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
             <h3 className="flex items-center gap-2 leading-none font-semibold tracking-tight">
               <OptimizedImage
-                src={getFaviconUrl(url)}
+                src={faviconUrl || SVG_PLACEHOLDER}
                 alt={`${name} favicon`}
                 width={20}
                 height={20}
@@ -55,7 +49,7 @@ export function ProjectCard({
             <span>{repoStars.toLocaleString()} stars</span>
           </div>
           <div className="text-muted-foreground flex items-center gap-4 text-sm">
-            <span className="text-[13px]">Last commit {formatDate(repoLastCommit)}</span>
+            <span className="text-[13px]">Last commit {format(repoLastCommit, 'MMM d, yyyy')}</span>
             {license && license !== 'other' && license !== 'unknown' && (
               <>
                 <Separator orientation="vertical" className="h-4" />

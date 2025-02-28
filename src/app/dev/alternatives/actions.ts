@@ -1,7 +1,7 @@
 'use server';
 
-import { db } from '@/db';
-import { alternatives } from '@/db/schema';
+import { createAlternative } from '@/data-access/alternative';
+import { getFaviconUrl } from '@/lib/favicon';
 import { adminAction } from '@/lib/safe-action';
 import { createAlternativeFormSchema } from '@/types/alternative';
 import { generateSlug } from '@/utils/slug';
@@ -14,14 +14,18 @@ export const createAlternativeAction = adminAction
       const { name, url, price, pricingModel, isPaid } = input;
       const slug = generateSlug(name);
 
-      const alternative = await db.insert(alternatives).values({
+      // Generate favicon URL if URL is provided
+      const faviconUrl = url ? getFaviconUrl(url) : null;
+
+      const alternative = await createAlternative(
         name,
+        url || '',
         slug,
-        url: url || null,
+        faviconUrl,
         price,
-        pricingModel: pricingModel || null,
-        isPaid,
-      });
+        pricingModel || null,
+        isPaid
+      );
 
       return {
         success: true,

@@ -4,6 +4,9 @@ import { getGitHubStats } from '@/services/github';
 import { inngest } from '@/services/inngest';
 import { eq } from 'drizzle-orm';
 
+// Batch size for processing projects
+const BATCH_SIZE = 50;
+
 // This function will run every 24 hours to update GitHub repository stats
 export const updateGitHubStats = inngest.createFunction(
   { id: 'update-github-stats' },
@@ -16,34 +19,70 @@ export const updateGitHubStats = inngest.createFunction(
       });
     });
 
-    // Create events for each project that needs updating
-    const events = allProjects
-      .filter(project => project.repoUrl?.includes('github.com'))
-      .map(project => ({
-        name: 'app/update.project.stats',
-        data: {
-          projectId: project.id,
-          repoUrl: project.repoUrl!,
-        },
-      }));
+    // Filter projects with GitHub URLs
+    const githubProjects = allProjects.filter(p => p.repoUrl?.includes('github.com'));
 
-    // Send all events in a batch
-    if (events.length > 0) {
-      await step.sendEvent('send-update-events', events);
+    // Create batches of projects
+    const batches = [];
+    for (let i = 0; i < githubProjects.length; i += BATCH_SIZE) {
+      batches.push(githubProjects.slice(i, i + BATCH_SIZE));
+    }
+
+    // Process each batch directly instead of sending events
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      if (!batch) continue;
+
+      await step.run(`process-batch-${i + 1}`, async () => {
+        console.log(`Processing batch ${i + 1}/${batches.length} with ${batch.length} projects`);
+
+        for (const project of batch) {
+          try {
+            // Fetch GitHub stats
+            const repoStats = await getGitHubStats(project.repoUrl!);
+
+            if (!repoStats) {
+              console.log(`Failed to fetch GitHub stats for project ${project.id}`);
+              continue;
+            }
+
+            // Update project stats in database
+            await db
+              .update(projects)
+              .set({
+                repoStars: repoStats.stars,
+                repoForks: repoStats.forks,
+                repoCreatedAt: new Date(repoStats.createdAt),
+                repoLastCommit: new Date(repoStats.lastCommit),
+                updatedAt: new Date(),
+              })
+              .where(eq(projects.id, project.id));
+
+            console.log(
+              `Updated stats for project ${project.id}: ${repoStats.stars} stars, ${repoStats.forks} forks`
+            );
+          } catch (error) {
+            console.error(`Error updating project ${project.id}:`, error);
+          }
+        }
+      });
     }
 
     return {
-      projectsToUpdate: events.length,
+      projectsToUpdate: githubProjects.length,
+      batchesProcessed: batches.length,
     };
   }
 );
 
-// This function handles updating stats for each project
+// Handler for individual project updates (for manual triggers)
 export const handleProjectStatsUpdate = inngest.createFunction(
   { id: 'handle-project-stats-update' },
-  { event: 'send-update-events' },
+  { event: 'project/update.stats' },
   async ({ event, step }) => {
     const { projectId, repoUrl } = event.data;
+
+    console.log('Handle Project Stats projectId', projectId);
 
     // Fetch GitHub stats
     const repoStats = await step.run('fetch-github-stats', async () => {

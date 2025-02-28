@@ -1,4 +1,4 @@
-import Analytics from '@/components/analytics';
+import { Analytics } from '@/components/analytics';
 import { Toaster } from '@/components/ui/sonner';
 import { metadata } from '@/config/website';
 import { cn } from '@/lib/utils';
@@ -12,18 +12,15 @@ export { metadata };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    // <Suspense>
-    // <ClerkProvider>
     <html lang="en">
       <body
         className={cn('bg-background dark min-h-screen font-sans antialiased', inter.className)}
       >
-        <Analytics />
         <Toaster />
-        <NuqsAdapter>{children}</NuqsAdapter>
+        <Analytics>
+          <NuqsAdapter>{children}</NuqsAdapter>
+        </Analytics>
       </body>
     </html>
-    //   </ClerkProvider>
-    // </Suspense>
   );
 }

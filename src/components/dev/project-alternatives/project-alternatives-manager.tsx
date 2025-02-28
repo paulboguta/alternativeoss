@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { alternatives, projects } from '@/db/schema';
-import { WithFavicon } from '@/utils/data-table-helpers';
+import { SVG_PLACEHOLDER } from '@/lib/favicon';
 import { InferSelectModel } from 'drizzle-orm';
 import { X } from 'lucide-react';
 import { useState } from 'react';
@@ -22,15 +22,13 @@ import { toast } from 'sonner';
 
 type Project = InferSelectModel<typeof projects>;
 type Alternative = InferSelectModel<typeof alternatives>;
-type ProjectWithFavicon = WithFavicon<Project>;
-type AlternativeWithFavicon = WithFavicon<Alternative>;
 
 interface ProjectAlternativesManagerProps {
-  projects: ProjectWithFavicon[];
-  alternatives: AlternativeWithFavicon[];
+  projects: Project[];
+  alternatives: Alternative[];
   connections: {
-    project: ProjectWithFavicon;
-    alternatives: AlternativeWithFavicon[];
+    project: Project;
+    alternatives: Alternative[];
   }[];
 }
 
@@ -112,7 +110,8 @@ export function ProjectAlternativesManager({
                         <div className="flex items-center gap-2">
                           <div className="relative h-4 w-4 overflow-hidden rounded-sm">
                             <OptimizedImage
-                              src={project.faviconUrl}
+                              isIcon
+                              src={project.faviconUrl ?? SVG_PLACEHOLDER}
                               alt=""
                               fill
                               className="object-contain"
@@ -143,8 +142,8 @@ export function ProjectAlternativesManager({
                         <div className="flex items-center gap-2">
                           <div className="relative h-4 w-4 overflow-hidden rounded-sm">
                             <OptimizedImage
-                              isIcon={true}
-                              src={alternative.faviconUrl}
+                              isIcon
+                              src={alternative.faviconUrl ?? SVG_PLACEHOLDER}
                               alt=""
                               fill
                               className="object-contain"
@@ -172,8 +171,8 @@ export function ProjectAlternativesManager({
               <div className="flex items-center gap-2">
                 <div className="relative h-5 w-5 overflow-hidden rounded-sm">
                   <OptimizedImage
-                    isIcon={true}
-                    src={selectedProject.faviconUrl}
+                    isIcon
+                    src={selectedProject.faviconUrl ?? SVG_PLACEHOLDER}
                     alt=""
                     fill
                     className="object-contain"
@@ -196,8 +195,8 @@ export function ProjectAlternativesManager({
                     >
                       <div className="relative mr-1 h-4 w-4 overflow-hidden rounded-sm">
                         <OptimizedImage
-                          isIcon={true}
-                          src={alternative.faviconUrl}
+                          isIcon
+                          src={alternative.faviconUrl ?? SVG_PLACEHOLDER}
                           alt=""
                           fill
                           className="object-contain"

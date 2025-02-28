@@ -16,7 +16,6 @@ import {
   unstable_cacheTag as cacheTag,
   revalidateTag,
 } from 'next/cache';
-
 export const checkIfProjectExistsUseCase = async (slug: string) => {
   return findProject(eq(projects.slug, slug));
 };
@@ -41,13 +40,7 @@ export const createProjectUseCase = async (project: NewProject) => {
   try {
     const newProject = await createProject(project);
     revalidateTag('projects');
-    revalidateTag(`projects-count`);
-    revalidateTag(`projects-page-1`);
 
-    if (newProject) {
-      revalidateTag(`project/${newProject.slug}`);
-      revalidateTag(`project-repo-stats/${newProject.id}`);
-    }
     return newProject;
   } catch (error) {
     throw new Error(`Failed to create project: ${error}`);
@@ -90,17 +83,14 @@ export const updateProjectContentUseCase = async (
 export const addProjectToCategoryUseCase = async (projectId: number, categoryId: number) => {
   await addProjectToCategory(projectId, categoryId);
 
-  // Invalidate relevant cache tags
-  revalidateTag(`project-categories/${projectId}`);
-  revalidateTag(`other-categories/${projectId}`);
-  revalidateTag('categories');
+  revalidateTag(`project/${projectId}`);
+  revalidateTag(`category/${categoryId}`);
 };
 
 export const addAlternativeToProjectUseCase = async (projectId: number, alternativeId: number) => {
   await addAlternativeToProject(projectId, alternativeId);
 
-  // Invalidate relevant cache tags
-  revalidateTag(`project-alternatives/${projectId}`);
+  revalidateTag(`project/${projectId}`);
   revalidateTag(`alternative/${alternativeId}`);
 };
 
@@ -121,20 +111,10 @@ export const getProjectsUseCase = async ({
 }) => {
   'use cache';
 
-  const cacheTagParams = [
-    searchQuery && `search-${searchQuery}`,
-    `page-${page}`,
-    sortField !== 'createdAt' && `sort-${sortField}`,
-    sortDirection !== 'desc' && `dir-${sortDirection}`,
-    Object.keys(filters).length > 0 && `filters-${JSON.stringify(filters)}`,
-  ]
-    .filter(Boolean)
-    .join('-');
+  cacheTag('projects');
+  cacheLife('max');
 
-  // Use a simpler cache tag if we're using all defaults
-  const cacheKey = cacheTagParams || 'default';
-  cacheTag(`projects-${cacheKey}`);
-  cacheLife('days');
+  const performanceCheck = performance.now();
 
   const { projects: projectsResult, pagination } = await getProjects({
     searchQuery,
@@ -143,9 +123,20 @@ export const getProjectsUseCase = async ({
     sortField,
     sortDirection,
     // TODO: Apply filters when implemented
-    filters: {},
+    filters,
   });
 
+  console.log(`Projects fetched in ${performance.now() - performanceCheck}ms`);
+  console.log(
+    `Additional parameters: ${JSON.stringify({
+      searchQuery,
+      page,
+      limit,
+      sortField,
+      sortDirection,
+      filters,
+    })}`
+  );
   return {
     projects: projectsResult,
     pagination,

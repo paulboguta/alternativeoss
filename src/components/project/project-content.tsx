@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import { env } from '@/env';
-import { getFaviconUrl } from '@/lib/favicon';
+import { SVG_PLACEHOLDER } from '@/lib/favicon';
 import { RequiredProjectData } from '@/types/project';
 import { buildProjectUrl } from '@/utils/url';
 import { ArrowRightIcon, Command, HomeIcon } from 'lucide-react';
@@ -46,13 +46,23 @@ function ProjectBreadcrumb({ projectName }: { projectName: string }) {
   );
 }
 
-function ProjectHeader({ name, url, repoUrl }: { name: string; url: string; repoUrl: string }) {
+function ProjectHeader({
+  name,
+  url,
+  repoUrl,
+  faviconUrl,
+}: {
+  name: string;
+  url: string;
+  repoUrl: string;
+  faviconUrl: string | null;
+}) {
   return (
     <div className="space-y-4 lg:flex lg:items-start lg:justify-between lg:space-y-0">
       <div className="flex items-center gap-4">
         <div className="flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-300/10 p-1.5">
           <OptimizedImage
-            src={getFaviconUrl(url)}
+            src={faviconUrl || SVG_PLACEHOLDER}
             alt={`${name} favicon`}
             width={32}
             height={32}
@@ -120,10 +130,13 @@ export function ProjectContent({ project }: PageContentProps) {
   return (
     <div className="space-y-8">
       <ProjectBreadcrumb projectName={project.name} />
-      <ProjectHeader name={project.name} url={project.url || ''} repoUrl={project.repoUrl || ''} />
+      <ProjectHeader
+        name={project.name}
+        url={project.url || ''}
+        repoUrl={project.repoUrl || ''}
+        faviconUrl={project.faviconUrl}
+      />
       <p className="text-muted-foreground">{project.summary}</p>
-
-      {/* ProjectStats is now handled at the page level */}
       <ProjectScreenshot slug={project.slug} name={project.name} />
       <div className="space-y-8">
         <div className="space-y-4">

@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { categories, projects } from '@/db/schema';
-import { WithFavicon } from '@/utils/data-table-helpers';
+import { SVG_PLACEHOLDER } from '@/lib/favicon';
 import { InferSelectModel } from 'drizzle-orm';
 import { X } from 'lucide-react';
 import { useState } from 'react';
@@ -22,13 +22,12 @@ import { toast } from 'sonner';
 
 type Project = InferSelectModel<typeof projects>;
 type Category = InferSelectModel<typeof categories>;
-type ProjectWithFavicon = WithFavicon<Project>;
 
 interface ProjectCategoriesManagerProps {
-  projects: ProjectWithFavicon[];
+  projects: Project[];
   categories: Category[];
   connections: {
-    project: ProjectWithFavicon;
+    project: Project;
     categories: Category[];
   }[];
 }
@@ -110,8 +109,8 @@ export function ProjectCategoriesManager({
                         <div className="flex items-center gap-2">
                           <div className="relative h-4 w-4 overflow-hidden rounded-sm">
                             <OptimizedImage
-                              isIcon={true}
-                              src={project.faviconUrl}
+                              isIcon
+                              src={project.faviconUrl ?? SVG_PLACEHOLDER}
                               alt=""
                               fill
                               className="object-contain"
@@ -160,8 +159,8 @@ export function ProjectCategoriesManager({
               <div className="flex items-center gap-2">
                 <div className="relative h-5 w-5 overflow-hidden rounded-sm">
                   <OptimizedImage
-                    isIcon={true}
-                    src={selectedProject.faviconUrl}
+                    isIcon
+                    src={selectedProject.faviconUrl ?? SVG_PLACEHOLDER}
                     alt=""
                     fill
                     className="object-contain"

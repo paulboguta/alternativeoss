@@ -1,0 +1,1 @@
+ALTER TABLE "alternatives" ADD COLUMN "favicon_url" text;

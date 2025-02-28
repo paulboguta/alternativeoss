@@ -1,10 +1,7 @@
 import { ProjectAlternativesPageClient } from '@/components/dev/project-alternatives/project-alternatives-page-client';
 import { db } from '@/db';
 import { alternatives, projectAlternatives, projects } from '@/db/schema';
-import {
-  enhanceAlternativesWithFavicons,
-  enhanceProjectsWithFavicons,
-} from '@/utils/data-table-helpers';
+
 import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -12,15 +9,13 @@ import { Suspense } from 'react';
 async function ProjectAlternativesContent() {
   // Get all projects and enhance with favicons
   const allProjects = await db.select().from(projects);
-  const enhancedProjects = enhanceProjectsWithFavicons(allProjects);
 
   // Get all alternatives and enhance with favicons
   const allAlternatives = await db.select().from(alternatives);
-  const enhancedAlternatives = enhanceAlternativesWithFavicons(allAlternatives);
 
   // Get all connections with related data
   const connections = await Promise.all(
-    enhancedProjects.map(async project => {
+    allProjects.map(async project => {
       const projectAlternativesData = await db
         .select({
           alternativeId: projectAlternatives.alternativeId,
@@ -36,13 +31,13 @@ async function ProjectAlternativesContent() {
             .where(eq(alternatives.id, pa.alternativeId))
             .limit(1);
 
-          return alternative[0] ? enhanceAlternativesWithFavicons([alternative[0]])[0] : undefined;
+          return alternative[0];
         })
       );
 
       // Filter out any undefined values
       const connectedAlternatives = connectedAlternativesWithUndefined.filter(
-        (alt): alt is (typeof enhancedAlternatives)[0] => alt !== undefined
+        (alt): alt is (typeof allAlternatives)[0] => alt !== undefined
       );
 
       return {
@@ -54,8 +49,8 @@ async function ProjectAlternativesContent() {
 
   return (
     <ProjectAlternativesPageClient
-      projects={enhancedProjects}
-      alternatives={enhancedAlternatives}
+      projects={allProjects}
+      alternatives={allAlternatives}
       connections={connections}
     />
   );

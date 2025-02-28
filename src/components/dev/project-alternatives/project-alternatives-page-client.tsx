@@ -4,7 +4,6 @@ import { CreateAlternativeForm } from '@/components/dev/alternatives/create-alte
 import { ProjectAlternativesManager } from '@/components/dev/project-alternatives/project-alternatives-manager';
 import { Button } from '@/components/ui/button';
 import { alternatives, projects } from '@/db/schema';
-import { WithFavicon } from '@/utils/data-table-helpers';
 import { InferSelectModel } from 'drizzle-orm';
 import { PlusCircle, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -12,15 +11,13 @@ import { useState } from 'react';
 
 type Project = InferSelectModel<typeof projects>;
 type Alternative = InferSelectModel<typeof alternatives>;
-type ProjectWithFavicon = WithFavicon<Project>;
-type AlternativeWithFavicon = WithFavicon<Alternative>;
 
 interface ProjectAlternativesPageClientProps {
-  projects: ProjectWithFavicon[];
-  alternatives: AlternativeWithFavicon[];
+  projects: Project[];
+  alternatives: Alternative[];
   connections: {
-    project: ProjectWithFavicon;
-    alternatives: AlternativeWithFavicon[];
+    project: Project;
+    alternatives: Alternative[];
   }[];
 }
 

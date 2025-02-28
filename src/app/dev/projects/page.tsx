@@ -1,15 +1,13 @@
 import { ProjectsPageClient } from '@/components/dev/projects/projects-page-client';
 import { db } from '@/db';
 import { projects } from '@/db/schema';
-import { enhanceProjectsWithFavicons } from '@/utils/data-table-helpers';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 async function ProjectsContent() {
   const data = await db.select().from(projects);
-  const enhancedData = enhanceProjectsWithFavicons(data);
 
-  return <ProjectsPageClient initialData={enhancedData} />;
+  return <ProjectsPageClient initialData={data} />;
 }
 
 export default async function ProjectsPage() {

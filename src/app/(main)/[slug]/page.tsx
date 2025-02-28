@@ -6,24 +6,18 @@ import {
   OtherCategoriesSkeleton,
   ProjectStatsSkeleton,
 } from '@/components/project/skeleton-project-page';
-import {
-  getAllProjects,
-  getOtherCategoriesWithCount,
-  getProject,
-  getProjectAlternatives,
-  getProjectCategoriesWithCount,
-} from '@/data-access/project';
+import { getAllProjects, getProject, getProjectSidebarData } from '@/data-access/project';
 import { generateProjectJsonLd } from '@/lib/schema';
 import { isValidProjectData } from '@/types/project';
 
 import { OtherCategories } from '@/components/project/other-categories';
 import { ProjectAlternatives } from '@/components/project/project-alternatives';
 import { ProjectCategories } from '@/components/project/project-categories';
-import { unstable_cacheTag as cacheTag } from 'next/cache';
+import { websiteConfig } from '@/config/website';
+import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
 import { cache, Suspense } from 'react';
-
 type PageProps = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<SearchParams>;
@@ -43,8 +37,6 @@ export async function generateMetadata({ params }: PageProps) {
     project.summary ||
     `Explore ${project.name} - an open source software alternative on AlternativeOSS`;
 
-  const imageUrl = `https://alternativeoss.com/og-image.png`;
-
   return {
     title,
     description,
@@ -57,7 +49,7 @@ export async function generateMetadata({ params }: PageProps) {
       siteName: 'AlternativeOSS',
       images: [
         {
-          url: imageUrl,
+          url: websiteConfig.links.ogImage,
           width: 1200,
           height: 630,
           alt: `${project.name} - Open Source Software Alternative`,
@@ -68,7 +60,7 @@ export async function generateMetadata({ params }: PageProps) {
       card: 'summary_large_image',
       title,
       description,
-      images: [imageUrl],
+      images: [websiteConfig.links.ogImage],
     },
     alternates: {
       canonical: `https://alternativeoss.com/${slug}`,
@@ -123,19 +115,16 @@ const findProject = cache(async (props: PageProps) => {
 async function LeftSidebar({ projectId }: { projectId: number }) {
   'use cache';
   cacheTag(`project/${projectId}`);
+  cacheLife('max'); // we revalidate it when updating
 
-  const [projectCategories, otherCategories, projectAlternatives] = await Promise.all([
-    getProjectCategoriesWithCount(projectId),
-    getOtherCategoriesWithCount(projectId),
-    getProjectAlternatives(projectId),
-  ]);
+  const sidebarData = await getProjectSidebarData(projectId);
 
   return (
     <aside className="border-dashed px-8 pt-4 pb-0 md:border-r md:pt-0">
       <div className="space-y-6 md:sticky md:top-24">
-        <ProjectAlternatives alternatives={projectAlternatives} />
-        <ProjectCategories categories={projectCategories} />
-        <OtherCategories categories={otherCategories} />
+        <ProjectAlternatives alternatives={sidebarData.projectAlternatives} />
+        <ProjectCategories categories={sidebarData.projectCategories} />
+        <OtherCategories categories={sidebarData.otherCategories} />
       </div>
     </aside>
   );

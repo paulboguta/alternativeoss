@@ -9,6 +9,7 @@ export type WebsiteConfig = {
   links: {
     github: string;
     twitterPawel: string;
+    ogImage: string;
   };
 };
 
@@ -21,6 +22,7 @@ export const websiteConfig: WebsiteConfig = {
   links: {
     github: 'https://github.com/paulboguta/alternativeoss',
     twitterPawel: 'https://x.com/pawelboguta',
+    ogImage: 'https://cdn.alternativeoss.com/assets/og-image.jpg',
   },
 };
 
@@ -62,7 +64,7 @@ export const metadata: Metadata = {
     siteName: 'AlternativeOSS',
     images: [
       {
-        url: 'https://alternativeoss.com/og-image.png',
+        url: websiteConfig.links.ogImage,
         width: 1200,
         height: 630,
         alt: 'AlternativeOSS - Open Source Software Alternatives Directory',
@@ -82,5 +84,4 @@ export const metadata: Metadata = {
     shortcut: '/favicon-16x16.png',
     apple: '/apple-touch-icon.png',
   },
-  manifest: '/site.webmanifest',
 };

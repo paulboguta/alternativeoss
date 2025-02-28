@@ -23,7 +23,8 @@ export async function CategoryPageContent({ projects }: CategoryPageContentProps
           key={project.name}
           name={project.name}
           summary={project.summary!}
-          url={project.url!}
+          slug={project.slug}
+          faviconUrl={project.faviconUrl!}
           repoStars={project.repoStars!}
           license={project.license?.name ?? ''}
           repoLastCommit={project.repoLastCommit!}

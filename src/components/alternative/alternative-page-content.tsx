@@ -13,8 +13,9 @@ export async function AlternativePageContent({ projects }: { projects: ProjectWi
         <ProjectCard
           key={project.name}
           name={project.name}
+          slug={project.slug}
           summary={project.summary!}
-          url={project.url!}
+          faviconUrl={project.faviconUrl!}
           repoStars={project.repoStars!}
           license={project.license?.name ?? ''}
           repoLastCommit={project.repoLastCommit!}

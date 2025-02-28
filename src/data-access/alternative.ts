@@ -25,10 +25,26 @@ export const getAlternativeByName = async (name: string) => {
   return alternative[0];
 };
 
-export const createAlternative = async (name: string, url: string) => {
+export const createAlternative = async (
+  name: string,
+  url: string,
+  slug: string = generateSlug(name),
+  faviconUrl: string | null = null,
+  price?: number | null,
+  pricingModel?: string | null,
+  isPaid: boolean = true
+) => {
   const alternative = await db
     .insert(alternatives)
-    .values({ name, url, slug: generateSlug(name) })
+    .values({
+      name,
+      url,
+      slug,
+      faviconUrl,
+      price: price ?? null,
+      pricingModel: pricingModel ?? null,
+      isPaid,
+    })
     .returning();
 
   return alternative[0];

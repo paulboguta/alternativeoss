@@ -1,4 +1,6 @@
-const nextConfig = {
+import { withPlausibleProxy } from 'next-plausible';
+
+export default withPlausibleProxy()({
   experimental: {
     useCache: true,
     // dynamicIO: true,
@@ -33,6 +35,4 @@ const nextConfig = {
       },
     ],
   },
-};
-
-export default nextConfig;
+});
