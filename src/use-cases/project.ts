@@ -42,7 +42,6 @@ export const createProjectUseCase = async (project: NewProject) => {
     const newProject = await createProject(project);
     revalidateTag('projects');
     revalidateTag(`projects-count`);
-    revalidateTag(`projects-page-1`);
 
     if (newProject) {
       revalidateTag(`project/${newProject.slug}`);

@@ -67,10 +67,11 @@ export async function ProjectsContent({
               key={project.name}
               name={project.name}
               summary={project.summary!}
-              url={project.url!}
+              slug={project.slug}
               repoStars={project.repoStars!}
               license={project.license?.name}
               repoLastCommit={project.repoLastCommit!}
+              faviconUrl={project.faviconUrl}
             />
           ))
         ) : (

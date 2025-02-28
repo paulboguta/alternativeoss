@@ -43,6 +43,20 @@
       "when": 1740414328469,
       "tag": "0005_cloudy_lionheart",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1740727952341,
+      "tag": "0006_parched_mister_sinister",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1740729250178,
+      "tag": "0007_freezing_sasquatch",
+      "breakpoints": true
     }
   ]
 }

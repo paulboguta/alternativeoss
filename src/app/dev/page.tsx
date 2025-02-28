@@ -49,15 +49,17 @@ function DashboardCard({
   title,
   description,
   href,
+  className,
 }: {
   title: string;
   description: string;
   href: string;
+  className?: string;
 }) {
   return (
     <Link
       href={href}
-      className="bg-card block rounded-lg border p-6 shadow-sm transition-all hover:shadow-md"
+      className={`bg-card block rounded-lg border p-6 shadow-sm transition-all hover:shadow-md ${className || ''}`}
     >
       <h3 className="mb-2 text-xl font-medium">{title}</h3>
       <p className="text-muted-foreground text-sm">{description}</p>

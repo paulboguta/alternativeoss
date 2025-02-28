@@ -1,5 +1,4 @@
 import { alternatives, projects } from '@/db/schema';
-import { getFaviconUrl } from '@/lib/favicon';
 import { InferSelectModel } from 'drizzle-orm';
 
 type Project = InferSelectModel<typeof projects>;
@@ -12,7 +11,6 @@ type Alternative = InferSelectModel<typeof alternatives>;
 export function enhanceProjectsWithFavicons(projects: Project[]) {
   return projects.map(project => ({
     ...project,
-    faviconUrl: getFaviconUrl(project.url || ''),
   }));
 }
 
@@ -23,7 +21,6 @@ export function enhanceProjectsWithFavicons(projects: Project[]) {
 export function enhanceAlternativesWithFavicons(alternatives: Alternative[]) {
   return alternatives.map(alternative => ({
     ...alternative,
-    faviconUrl: getFaviconUrl(alternative.url || ''),
   }));
 }
 

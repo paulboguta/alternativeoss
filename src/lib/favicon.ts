@@ -27,7 +27,7 @@ function getFaviconCandidates(url: string): string[] {
 }
 
 // SVG placeholder for when no favicon is available
-const SVG_PLACEHOLDER =
+export const SVG_PLACEHOLDER =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23e2e8f0'/%3E%3C/svg%3E";
 
 /**

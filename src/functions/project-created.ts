@@ -2,12 +2,7 @@ import { generateProjectCategories } from '@/ai/category';
 import { extractJsonFromResponse } from '@/ai/core';
 import { generateProjectSummary } from '@/ai/project-summary';
 import { createCategory, getCategories, updateProjectCategories } from '@/data-access/category';
-import {
-  createProject,
-  getProject,
-  updateProjectContent,
-  updateProjectRepoStats,
-} from '@/data-access/project';
+import { getProject, updateProjectContent, updateProjectRepoStats } from '@/data-access/project';
 
 import { generateProjectAlternatives } from '@/ai/alternatives';
 import {
@@ -16,11 +11,13 @@ import {
   getAlternatives,
   updateProjectAlternatives,
 } from '@/data-access/alternative';
+import { getFaviconUrl } from '@/lib/favicon';
 import { generateScreenshot } from '@/lib/image';
 import { getGitHubStats } from '@/services/github';
 import { inngest } from '@/services/inngest';
 import { CreateProjectForm } from '@/types/project';
 import { updateLicenseProjectUseCase } from '@/use-cases/license';
+import { createProjectUseCase } from '@/use-cases/project';
 import { generateSlug } from '@/utils/slug';
 
 export const sendCreateProjectEvent = async (data: CreateProjectForm) => {
@@ -42,9 +39,12 @@ export const handleProjectCreated = inngest.createFunction(
 
     const slug = generateSlug(name);
 
+    // Generate favicon URL if URL is provided
+    const faviconUrl = url ? getFaviconUrl(url) : undefined;
+
     // Create the project first
     const newProject = await step.run('create-project', async () => {
-      const newProject = await createProject({
+      const newProject = await createProjectUseCase({
         name,
         slug,
         url,
@@ -52,6 +52,7 @@ export const handleProjectCreated = inngest.createFunction(
         scheduledAt: new Date(Date.now() + 30 * 60 * 1000),
         affiliateCode,
         repoUrl,
+        faviconUrl,
       });
 
       // Ensure the project is immediately available
@@ -160,7 +161,18 @@ export const handleProjectCreated = inngest.createFunction(
             return existing.id;
           }
 
-          const created = await createAlternative(alternative.name, alternative.url);
+          const slug = generateSlug(alternative.name);
+          const faviconUrl = alternative.url ? getFaviconUrl(alternative.url) : null;
+          const created = await createAlternative(
+            alternative.name,
+            alternative.url,
+            slug,
+            faviconUrl,
+            // to implement later:
+            null, // price
+            null, // pricingModel
+            true // isPaid
+          );
 
           if (!created) {
             throw new Error('Failed to create alternative');

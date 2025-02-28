@@ -18,7 +18,8 @@ export const projects = pgTable('projects', {
   features: text('features').array(),
 
   url: text('url'),
-  logoUrl: text('logo_url'),
+  faviconUrl: text('favicon_url'),
+  logoUrl: text('logo_url'), // fallback for when faviconUrl is not available
 
   repoUrl: text('repo_url'),
   repoStars: integer('repo_stars'),
@@ -142,6 +143,7 @@ export const alternatives = pgTable('alternatives', {
   description: text('description'),
   url: text('url'),
   logoUrl: text('logo_url'),
+  faviconUrl: text('favicon_url'),
   price: integer('price'),
   pricingModel: text('pricing_model'),
   isPaid: boolean('is_paid').default(true),

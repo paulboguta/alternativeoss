@@ -1,22 +1,14 @@
 import { OptimizedImage } from '@/components/ui/optimized-image';
-import { getFaviconUrl } from '@/lib/favicon';
-import { generateSlug } from '@/utils/slug';
+import { SVG_PLACEHOLDER } from '@/lib/favicon';
 import Link from 'next/link';
 
-type Alternative = {
+type ProjectAlternativesProps = {
   alternatives: {
     id: number;
     name: string;
-    url: string | null;
-  };
-  project_alternatives?: {
-    projectId: number;
-    alternativeId: number;
-  };
-};
-
-type ProjectAlternativesProps = {
-  alternatives: Alternative[];
+    slug: string;
+    faviconUrl: string | null;
+  }[];
 };
 
 export function ProjectAlternatives({ alternatives }: ProjectAlternativesProps) {
@@ -26,14 +18,14 @@ export function ProjectAlternatives({ alternatives }: ProjectAlternativesProps) 
       <div className="flex w-full flex-wrap gap-x-1">
         {alternatives.map(alt => (
           <Link
-            key={alt.alternatives.id}
-            href={`/alternatives/${generateSlug(alt.alternatives.name)}`}
+            key={alt.id}
+            href={`/alternatives/${alt.slug}`}
             className="group hover:bg-accent/50 flex w-fit items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors"
           >
             <div className="flex items-center justify-center rounded-md">
               <OptimizedImage
-                src={getFaviconUrl(alt.alternatives.url || '')}
-                alt={`${alt.alternatives.name} favicon`}
+                src={alt.faviconUrl || SVG_PLACEHOLDER}
+                alt={`${alt.name} favicon`}
                 width={12}
                 height={12}
                 className="rounded-sm"
@@ -41,7 +33,7 @@ export function ProjectAlternatives({ alternatives }: ProjectAlternativesProps) 
               />
             </div>
             <span className="group-hover:text-foreground text-muted-foreground text-xs font-medium">
-              {alt.alternatives.name}
+              {alt.name}
             </span>
           </Link>
         ))}

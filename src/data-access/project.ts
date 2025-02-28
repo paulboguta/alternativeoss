@@ -41,6 +41,7 @@ export const getProject = async (slug: string) => {
       name: projects.name,
       slug: projects.slug,
       url: projects.url,
+      faviconUrl: projects.faviconUrl,
       repoUrl: projects.repoUrl,
       repoStars: projects.repoStars,
       repoForks: projects.repoForks,
@@ -148,6 +149,7 @@ export const getProjects = async ({
     repoLastCommit: projects.repoLastCommit,
     license: licenses,
     summary: projects.summary,
+    faviconUrl: projects.faviconUrl,
   };
 
   // Add rank field for search queries
@@ -172,9 +174,11 @@ export const getProjects = async ({
     query.orderBy(orderByClause);
   }
 
-  const results = await query;
+  const resultsPromise = await query;
 
-  const totalCount = await db.$count(projects, condition);
+  const totalCountPromise = await db.$count(projects, condition);
+
+  const [results, totalCount] = await Promise.all([resultsPromise, totalCountPromise]);
 
   return {
     projects: results,
@@ -364,7 +368,12 @@ export const getProjectAlternatives = async (projectId: number) => {
   cacheTag(`project-alternatives/${projectId}`);
 
   const result = await db
-    .select()
+    .select({
+      id: alternatives.id,
+      name: alternatives.name,
+      slug: alternatives.slug,
+      faviconUrl: alternatives.faviconUrl,
+    })
     .from(alternatives)
     .innerJoin(projectAlternatives, eq(alternatives.id, projectAlternatives.alternativeId))
     .where(eq(projectAlternatives.projectId, projectId));
