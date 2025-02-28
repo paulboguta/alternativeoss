@@ -1,19 +1,14 @@
 import { getProjectsUseCase } from '@/use-cases/project';
 
-import { ITEMS_PER_PAGE } from '@/lib/search-params';
+import { ITEMS_PER_PAGE, loadSearchParams } from '@/lib/search-params';
 
-import { SortDirection } from '@/config/sorting';
-
-import { SortField } from '@/config/sorting';
+import { SortDirection, SortField } from '@/config/sorting';
 import { SearchParams } from 'nuqs/server';
 import { Pagination } from '../pagination';
 import { ProjectCard } from './project-card';
 
 export async function ProjectsContent({ searchParams }: { searchParams: SearchParams }) {
-  const { page, sort, dir, q } = searchParams;
-
-  const sortField = sort ? (sort as SortField) : undefined;
-  const sortDirection = dir ? (dir as SortDirection) : undefined;
+  const { q, sort, dir, page } = await loadSearchParams(searchParams);
 
   const currentPage = page ? Number(page) : 1;
 
@@ -21,36 +16,11 @@ export async function ProjectsContent({ searchParams }: { searchParams: SearchPa
     searchQuery: q as string,
     page: currentPage,
     limit: ITEMS_PER_PAGE,
-    sortField,
-    sortDirection,
+    sortField: sort as SortField,
+    sortDirection: dir as SortDirection,
   });
 
   const { projects: paginatedProjects, pagination } = result;
-
-  const createUrl = (newPage: number) => {
-    const params = new URLSearchParams();
-
-    // Only add page parameter if it's not page 1
-    if (newPage > 1) {
-      params.set('page', newPage.toString());
-    }
-
-    // Only add sort parameters if they're not the defaults
-    if (sortField && sortField !== 'createdAt') {
-      params.set('sort', sortField);
-    }
-
-    if (sortDirection && sortDirection !== 'desc') {
-      params.set('dir', sortDirection);
-    }
-
-    if (q) {
-      params.set('q', q as string);
-    }
-
-    const queryString = params.toString();
-    return queryString ? `/?${queryString}` : '/';
-  };
 
   return (
     <>
@@ -82,11 +52,7 @@ export async function ProjectsContent({ searchParams }: { searchParams: SearchPa
 
       {pagination.totalPages > 1 && (
         <div className="mt-8 flex justify-center">
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            createUrl={createUrl}
-          />
+          <Pagination totalPages={pagination.totalPages} />
         </div>
       )}
     </>

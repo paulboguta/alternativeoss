@@ -2,19 +2,15 @@
 
 import { Input } from '@/components/ui/input';
 import { useSearch } from '@/hooks/use-search';
+
+import debounce from 'debounce';
 import { Search as SearchIcon } from 'lucide-react';
-import { useEffect } from 'react';
 import { LoadingIndicator } from '../loading-indicator';
 
 export function Search() {
-  const { searchTerm, debouncedSearchTerm, isPending, handleSearchChange, updateSearchParams } =
-    useSearch({
-      debounceDelay: 400,
-    });
+  const { isPending, setSearchTerm } = useSearch();
 
-  useEffect(() => {
-    updateSearchParams(debouncedSearchTerm);
-  }, [debouncedSearchTerm, updateSearchParams]);
+  const debouncedSetSearchTerm = debounce(setSearchTerm, 350);
 
   return (
     <div className="relative w-full sm:max-w-sm">
@@ -29,8 +25,7 @@ export function Search() {
         type="search"
         placeholder="Search projects..."
         className="w-full pr-4 pl-8"
-        value={searchTerm}
-        onChange={e => handleSearchChange(e.target.value)}
+        onChange={e => debouncedSetSearchTerm(e.target.value)}
         aria-label="Search projects"
       />
     </div>

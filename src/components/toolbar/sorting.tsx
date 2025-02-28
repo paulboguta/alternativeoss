@@ -20,16 +20,18 @@ type SortingProps = {
 };
 
 export function Sorting({ defaultSort }: SortingProps) {
-  const { open, setOpen, isLoading, currentSortOption, handleSortChange, sortOptions } = useSorting(
-    { defaultSort }
-  );
+  const { open, setOpen, isPending, sort, handleSortChange, sortOptions } = useSorting({
+    defaultSort,
+  });
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="h-9 gap-1 md:gap-2">
-          {isLoading ? <LoadingIndicator /> : <SortDesc className="h-3.5 w-3.5" />}
-          <span className="font-medium">{currentSortOption?.label || 'Newest'}</span>
+          {isPending ? <LoadingIndicator /> : <SortDesc className="h-3.5 w-3.5" />}
+          <span className="font-medium">
+            {sortOptions.find(option => option.field === sort)?.label || 'Newest'}
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">

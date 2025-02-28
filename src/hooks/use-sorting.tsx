@@ -1,8 +1,9 @@
 'use client';
 
 import { SortDirection, SortField, SortOption, sortOptions } from '@/config/sorting';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useQueryState } from 'nuqs';
+import { useState, useTransition } from 'react';
 
 type UseSortingProps = {
   defaultSort?: {
@@ -13,41 +14,28 @@ type UseSortingProps = {
 
 export function useSorting({ defaultSort }: UseSortingProps) {
   const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const [isPending, startTransition] = useTransition();
+
+  const [sort, setSort] = useQueryState('sort', {
+    startTransition,
+    shallow: false,
+    clearOnDefault: true,
+    defaultValue: 'createdAt',
+    throttleMs: 200,
+  });
+
+  const [dir, setDir] = useQueryState('dir', {
+    startTransition,
+    shallow: false,
+    clearOnDefault: true,
+    defaultValue: 'desc',
+    throttleMs: 200,
+  });
 
   const currentSortField = defaultSort?.field || searchParams.get('sort') || 'createdAt';
   const currentSortDirection = defaultSort?.direction || searchParams.get('dir') || 'desc';
-
-  // Reset loading state when search params change (query completed)
-  useEffect(() => {
-    setIsLoading(false);
-  }, [searchParams]);
-
-  const currentSortOption = sortOptions.find(
-    option => option.field === currentSortField && option.direction === currentSortDirection
-  );
-
-  const createSortUrl = (option: SortOption) => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    // Only set sort parameters if they're different from defaults
-    if (option.field !== 'createdAt' || option.direction !== 'desc') {
-      params.set('sort', option.field);
-      params.set('dir', option.direction);
-    } else {
-      // If using default sort, remove the parameters
-      params.delete('sort');
-      params.delete('dir');
-    }
-
-    // Don't reset the page when sorting changes
-    // This allows users to sort while on any page
-
-    return `${pathname}?${params.toString()}`;
-  };
 
   const handleSortChange = (option: SortOption) => {
     // If the selected option is already active, just close the dropdown
@@ -56,10 +44,8 @@ export function useSorting({ defaultSort }: UseSortingProps) {
       return;
     }
 
-    setIsLoading(true);
-
-    const url = createSortUrl(option);
-    router.push(url);
+    setSort(option.field);
+    setDir(option.direction);
 
     setOpen(false);
   };
@@ -67,10 +53,9 @@ export function useSorting({ defaultSort }: UseSortingProps) {
   return {
     open,
     setOpen,
-    isLoading,
-    currentSortField,
-    currentSortDirection,
-    currentSortOption,
+    isPending,
+    sort,
+    dir,
     handleSortChange,
     sortOptions,
   };

@@ -1,3 +1,4 @@
+'use client';
 import {
   PaginationContent,
   PaginationEllipsis,
@@ -6,26 +7,30 @@ import {
   PaginationNext,
   PaginationPrevious,
   Pagination as PaginationRoot,
-} from "@/components/ui/pagination";
+} from '@/components/ui/pagination';
+import { useQueryState } from 'nuqs';
+import { useTransition } from 'react';
 
 type PaginationProps = {
-  currentPage: number;
   totalPages: number;
-  createUrl: (page: number) => string;
 };
 
-export function Pagination({
-  currentPage,
-  totalPages,
-  createUrl,
-}: PaginationProps) {
+export function Pagination({ totalPages }: PaginationProps) {
+  const [, startTransition] = useTransition();
+
+  const [currentPage, setCurrentPage] = useQueryState('page', {
+    startTransition,
+    shallow: false,
+    defaultValue: '1',
+    clearOnDefault: true,
+    throttleMs: 200,
+  });
+
   // Generate array of page numbers to show
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   const showPages = pages.filter(
-    (page) =>
-      page === 1 ||
-      page === totalPages ||
-      (page >= currentPage - 2 && page <= currentPage + 2)
+    page =>
+      page === 1 || page === totalPages || (page >= +currentPage - 2 && page <= +currentPage + 2)
   );
 
   // Add ellipsis where needed
@@ -34,7 +39,7 @@ export function Pagination({
     if (index > 0) {
       const prevPage = showPages[index - 1]!;
       if (page - prevPage > 1) {
-        pagesWithEllipsis.push("...");
+        pagesWithEllipsis.push('...');
       }
     }
     pagesWithEllipsis.push(page);
@@ -45,16 +50,14 @@ export function Pagination({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            href={createUrl(currentPage - 1)}
-            aria-disabled={currentPage === 1}
-            className={
-              currentPage === 1 ? "pointer-events-none opacity-50" : ""
-            }
+            onClick={() => setCurrentPage(String(+currentPage - 1))}
+            aria-disabled={+currentPage === 1}
+            className={+currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
           />
         </PaginationItem>
 
         {pagesWithEllipsis.map((page, index) => {
-          if (page === "...") {
+          if (page === '...') {
             return (
               <PaginationItem key={`ellipsis-${index}`}>
                 <PaginationEllipsis />
@@ -66,8 +69,8 @@ export function Pagination({
           return (
             <PaginationItem key={pageNum}>
               <PaginationLink
-                href={createUrl(pageNum)}
-                isActive={currentPage === pageNum}
+                onClick={() => setCurrentPage(pageNum.toString())}
+                isActive={+currentPage === pageNum}
               >
                 {pageNum}
               </PaginationLink>
@@ -77,11 +80,9 @@ export function Pagination({
 
         <PaginationItem>
           <PaginationNext
-            href={createUrl(currentPage + 1)}
-            aria-disabled={currentPage === totalPages}
-            className={
-              currentPage === totalPages ? "pointer-events-none opacity-50" : ""
-            }
+            onClick={() => setCurrentPage(String(+currentPage + 1))}
+            aria-disabled={+currentPage === totalPages}
+            className={+currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
           />
         </PaginationItem>
       </PaginationContent>
