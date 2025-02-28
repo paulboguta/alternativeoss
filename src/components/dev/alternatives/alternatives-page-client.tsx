@@ -3,7 +3,7 @@
 import { AlternativesDataTable } from '@/components/dev/tables/alternatives-data-table';
 import { Button } from '@/components/ui/button';
 import { alternatives } from '@/db/schema';
-import { WithFavicon } from '@/utils/data-table-helpers';
+
 import { InferSelectModel } from 'drizzle-orm';
 import { PlusCircle, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -11,10 +11,9 @@ import { useState } from 'react';
 import { CreateAlternativeForm } from './create-alternative-form';
 
 type Alternative = InferSelectModel<typeof alternatives>;
-type AlternativeWithFavicon = WithFavicon<Alternative>;
 
 interface AlternativesPageClientProps {
-  initialData: AlternativeWithFavicon[];
+  initialData: Alternative[];
 }
 
 export function AlternativesPageClient({ initialData }: AlternativesPageClientProps) {

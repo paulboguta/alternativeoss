@@ -3,7 +3,6 @@
 import { ProjectsDataTable } from '@/components/dev/tables/projects-data-table';
 import { Button } from '@/components/ui/button';
 import { projects } from '@/db/schema';
-import { WithFavicon } from '@/utils/data-table-helpers';
 import { InferSelectModel } from 'drizzle-orm';
 import { PlusCircle, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -11,10 +10,9 @@ import { useState } from 'react';
 import { CreateProjectForm } from './create-project-form';
 
 type Project = InferSelectModel<typeof projects>;
-type ProjectWithFavicon = WithFavicon<Project>;
 
 interface ProjectsPageClientProps {
-  initialData: ProjectWithFavicon[];
+  initialData: Project[];
 }
 
 export function ProjectsPageClient({ initialData }: ProjectsPageClientProps) {

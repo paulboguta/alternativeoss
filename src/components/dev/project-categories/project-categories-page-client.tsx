@@ -4,7 +4,6 @@ import { CreateCategoryForm } from '@/components/dev/categories/create-category-
 import { ProjectCategoriesManager } from '@/components/dev/project-categories/project-categories-manager';
 import { Button } from '@/components/ui/button';
 import type { categories, projects } from '@/db/schema';
-import { WithFavicon } from '@/utils/data-table-helpers';
 import { InferSelectModel } from 'drizzle-orm';
 import { PlusCircle, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -12,13 +11,12 @@ import { useState } from 'react';
 
 type Project = InferSelectModel<typeof projects>;
 type Category = InferSelectModel<typeof categories>;
-type ProjectWithFavicon = WithFavicon<Project>;
 
 interface ProjectCategoriesPageClientProps {
-  projects: ProjectWithFavicon[];
+  projects: Project[];
   categories: Category[];
   connections: {
-    project: ProjectWithFavicon;
+    project: Project;
     categories: Category[];
   }[];
 }

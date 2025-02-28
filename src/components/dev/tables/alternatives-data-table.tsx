@@ -15,15 +15,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import { alternatives } from '@/db/schema';
-import { WithFavicon } from '@/utils/data-table-helpers';
+import { SVG_PLACEHOLDER } from '@/lib/favicon';
+
 import { ColumnDef } from '@tanstack/react-table';
 import { InferSelectModel } from 'drizzle-orm';
 import { MoreHorizontal, Pencil, Trash } from 'lucide-react';
 
 type Alternative = InferSelectModel<typeof alternatives>;
-type AlternativeWithFavicon = WithFavicon<Alternative>;
 
-export const columns: ColumnDef<AlternativeWithFavicon>[] = [
+export const columns: ColumnDef<Alternative>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -61,8 +61,8 @@ export const columns: ColumnDef<AlternativeWithFavicon>[] = [
         <div className="flex items-center justify-center">
           <div className="relative h-8 w-8 overflow-hidden rounded-full">
             <OptimizedImage
-              isIcon={true}
-              src={alternative.faviconUrl}
+              isIcon
+              src={alternative.faviconUrl ?? SVG_PLACEHOLDER}
               alt={`${alternative.name} favicon`}
               className="object-contain"
               fill
@@ -158,7 +158,7 @@ export const columns: ColumnDef<AlternativeWithFavicon>[] = [
 ];
 
 interface AlternativesDataTableProps {
-  data: AlternativeWithFavicon[];
+  data: Alternative[];
 }
 
 export function AlternativesDataTable({ data }: AlternativesDataTableProps) {

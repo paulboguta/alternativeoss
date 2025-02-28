@@ -1,15 +1,14 @@
 import { AlternativesPageClient } from '@/components/dev/alternatives/alternatives-page-client';
 import { db } from '@/db';
 import { alternatives } from '@/db/schema';
-import { enhanceAlternativesWithFavicons } from '@/utils/data-table-helpers';
+
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 async function AlternativesContent() {
   const data = await db.select().from(alternatives);
-  const enhancedData = enhanceAlternativesWithFavicons(data);
 
-  return <AlternativesPageClient initialData={enhancedData} />;
+  return <AlternativesPageClient initialData={data} />;
 }
 
 export default async function AlternativesPage() {

@@ -15,15 +15,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import { projects } from '@/db/schema';
-import { WithFavicon } from '@/utils/data-table-helpers';
+import { SVG_PLACEHOLDER } from '@/lib/favicon';
 import { ColumnDef } from '@tanstack/react-table';
 import { InferSelectModel } from 'drizzle-orm';
 import { MoreHorizontal, Pencil, Trash } from 'lucide-react';
 
 type Project = InferSelectModel<typeof projects>;
-type ProjectWithFavicon = WithFavicon<Project>;
 
-export const columns: ColumnDef<ProjectWithFavicon>[] = [
+export const columns: ColumnDef<Project>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -61,8 +60,8 @@ export const columns: ColumnDef<ProjectWithFavicon>[] = [
         <div className="flex items-center justify-center">
           <div className="relative h-8 w-8 overflow-hidden rounded-full">
             <OptimizedImage
-              isIcon={true}
-              src={project.faviconUrl}
+              isIcon
+              src={project.faviconUrl ?? SVG_PLACEHOLDER}
               alt={`${project.name} favicon`}
               className="object-contain"
               fill
@@ -160,7 +159,7 @@ export const columns: ColumnDef<ProjectWithFavicon>[] = [
 ];
 
 interface ProjectsDataTableProps {
-  data: ProjectWithFavicon[];
+  data: Project[];
 }
 
 export function ProjectsDataTable({ data }: ProjectsDataTableProps) {
