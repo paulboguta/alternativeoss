@@ -1,7 +1,6 @@
 import { db } from '@/db';
 import {
   alternatives,
-  categories,
   licenses,
   projectAlternatives,
   projectCategories,
@@ -57,27 +56,6 @@ export const getProject = async (slug: string) => {
     .where(eq(projects.slug, slug));
 
   return project[0];
-};
-
-export const getProjectRepoStats = async (projectId: number) => {
-  'use cache';
-
-  cacheTag(`project-repo-stats/${projectId}`);
-
-  const stats = await db
-    .select({
-      repoUrl: projects.repoUrl,
-      repoStars: projects.repoStars,
-      repoForks: projects.repoForks,
-      repoLastCommit: projects.repoLastCommit,
-      license: licenses,
-    })
-    .from(projects)
-    .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
-    .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
-    .where(eq(projects.id, projectId));
-
-  return stats[0];
 };
 
 export const getProjects = async ({
@@ -288,100 +266,156 @@ export const updateProjectContent = async (
   return project[0];
 };
 
-export const getProjectCategories = async (projectId: number) => {
-  'use cache';
-  cacheTag(`project-categories/${projectId}`);
-
-  const result = await db
-    .select()
-    .from(categories)
-    .innerJoin(projectCategories, eq(categories.id, projectCategories.categoryId))
-    .where(eq(projectCategories.projectId, projectId));
-
-  return result;
-};
-
-export const getProjectCategoriesWithCount = async (projectId: number) => {
-  'use cache';
-  cacheTag(`project-categories/${projectId}`);
-
-  const result = await db
-    .select({
-      categoryId: categories.id,
-      categoryName: categories.name,
-      count: sql<number>`(
-        SELECT COUNT(*)
-        FROM ${projectCategories}
-        WHERE ${projectCategories.categoryId} = ${categories.id}
-      )`.as('count'),
-    })
-    .from(categories)
-    .innerJoin(projectCategories, eq(categories.id, projectCategories.categoryId))
-    .where(eq(projectCategories.projectId, projectId))
-    .orderBy(sql`count DESC`);
-
-  return result.map(({ categoryId, categoryName, count }) => ({
-    categoryId,
-    categoryName,
-    count: Number(count),
-  }));
-};
-
-export const getOtherCategoriesWithCount = async (projectId: number, limit = 5) => {
-  'use cache';
-  cacheTag(`other-categories/${projectId}`);
-  cacheTag('categories'); // General categories cache tag
-
-  const result = await db
-    .select({
-      categoryId: categories.id,
-      categoryName: categories.name,
-      count: sql<number>`(
-        SELECT COUNT(*)
-        FROM ${projectCategories}
-        WHERE ${projectCategories.categoryId} = ${categories.id}
-      )`.as('count'),
-    })
-    .from(categories)
-    .where(
-      sql`${categories.id} NOT IN (
-        SELECT ${projectCategories.categoryId}
-        FROM ${projectCategories}
-        WHERE ${projectCategories.projectId} = ${projectId}
-      )`
-    )
-    .orderBy(sql`count DESC`)
-    .limit(limit);
-
-  return result.map(({ categoryId, categoryName, count }) => ({
-    categoryId,
-    categoryName,
-    count: Number(count),
-  }));
-};
-
-export const getProjectAlternatives = async (projectId: number) => {
-  'use cache';
-  cacheTag(`project-alternatives/${projectId}`);
-
-  const result = await db
-    .select({
-      id: alternatives.id,
-      name: alternatives.name,
-      slug: alternatives.slug,
-      faviconUrl: alternatives.faviconUrl,
-    })
-    .from(alternatives)
-    .innerJoin(projectAlternatives, eq(alternatives.id, projectAlternatives.alternativeId))
-    .where(eq(projectAlternatives.projectId, projectId));
-
-  return result;
-};
-
 export const addProjectToCategory = async (projectId: number, categoryId: number) => {
   await db.insert(projectCategories).values({ projectId, categoryId });
 };
 
 export const addAlternativeToProject = async (projectId: number, alternativeId: number) => {
   await db.insert(projectAlternatives).values({ projectId, alternativeId });
+};
+
+export const getProjectSidebarData = async (projectId: number, otherCategoriesLimit = 5) => {
+  // TODO: Cursor output - verify if you can do it with drizzle orm
+  const query = sql`
+    WITH project_categories_with_count AS (
+      SELECT 
+        c.id AS category_id,
+        c.name AS category_name,
+        COUNT(pc2.project_id) AS count
+      FROM categories c
+      INNER JOIN project_categories pc ON c.id = pc.category_id
+      INNER JOIN project_categories pc2 ON c.id = pc2.category_id
+      WHERE pc.project_id = ${projectId}
+      GROUP BY c.id, c.name
+      ORDER BY count DESC
+    ),
+    other_categories_with_count AS (
+      SELECT 
+        c.id AS category_id,
+        c.name AS category_name,
+        COUNT(pc.project_id) AS count
+      FROM categories c
+      LEFT JOIN project_categories pc ON c.id = pc.category_id
+      WHERE c.id NOT IN (
+        SELECT category_id 
+        FROM project_categories 
+        WHERE project_id = ${projectId}
+      )
+      GROUP BY c.id, c.name
+      ORDER BY count DESC
+      LIMIT ${otherCategoriesLimit}
+    ),
+    project_alternatives_data AS (
+      SELECT 
+        a.id,
+        a.name,
+        a.slug,
+        a.favicon_url
+      FROM alternatives a
+      INNER JOIN project_alternatives pa ON a.id = pa.alternative_id
+      WHERE pa.project_id = ${projectId}
+    )
+    SELECT 
+      'project_categories' AS data_type,
+      jsonb_build_object(
+        'categoryId', pc.category_id,
+        'categoryName', pc.category_name,
+        'count', pc.count
+      ) AS data
+    FROM project_categories_with_count pc
+    UNION ALL
+    SELECT 
+      'other_categories' AS data_type,
+      jsonb_build_object(
+        'categoryId', oc.category_id,
+        'categoryName', oc.category_name,
+        'count', oc.count
+      ) AS data
+    FROM other_categories_with_count oc
+    UNION ALL
+    SELECT 
+      'project_alternatives' AS data_type,
+      jsonb_build_object(
+        'id', pa.id,
+        'name', pa.name,
+        'slug', pa.slug,
+        'faviconUrl', pa.favicon_url
+      ) AS data
+    FROM project_alternatives_data pa
+  `;
+
+  type CategoryData = {
+    categoryId: number;
+    categoryName: string;
+    count: number | string;
+  };
+
+  type AlternativeData = {
+    id: number;
+    name: string;
+    slug: string;
+    faviconUrl: string | null;
+  };
+
+  type QueryResult = {
+    data_type: string;
+    data: CategoryData | AlternativeData;
+  };
+
+  const result = await db.execute<QueryResult>(query);
+
+  // Process the results
+  const projectCategories: Array<{
+    categoryId: number;
+    categoryName: string;
+    count: number;
+  }> = [];
+
+  const otherCategories: Array<{
+    categoryId: number;
+    categoryName: string;
+    count: number;
+  }> = [];
+
+  const projectAlternatives: Array<{
+    id: number;
+    name: string;
+    slug: string;
+    faviconUrl: string | null;
+  }> = [];
+
+  // Parse the results
+  for (const row of result.rows) {
+    const dataType = row.data_type;
+
+    if (dataType === 'project_categories') {
+      const data = row.data as CategoryData;
+      projectCategories.push({
+        categoryId: data.categoryId,
+        categoryName: data.categoryName,
+        count: Number(data.count),
+      });
+    } else if (dataType === 'other_categories') {
+      const data = row.data as CategoryData;
+      otherCategories.push({
+        categoryId: data.categoryId,
+        categoryName: data.categoryName,
+        count: Number(data.count),
+      });
+    } else if (dataType === 'project_alternatives') {
+      const data = row.data as AlternativeData;
+      projectAlternatives.push({
+        id: data.id,
+        name: data.name,
+        slug: data.slug,
+        faviconUrl: data.faviconUrl,
+      });
+    }
+  }
+
+  return {
+    projectCategories,
+    otherCategories,
+    projectAlternatives,
+  };
 };

@@ -83,17 +83,14 @@ export const updateProjectContentUseCase = async (
 export const addProjectToCategoryUseCase = async (projectId: number, categoryId: number) => {
   await addProjectToCategory(projectId, categoryId);
 
-  // Invalidate relevant cache tags
-  revalidateTag(`project-categories/${projectId}`);
-  revalidateTag(`other-categories/${projectId}`);
-  revalidateTag('categories');
+  revalidateTag(`project/${projectId}`);
+  revalidateTag(`category/${categoryId}`);
 };
 
 export const addAlternativeToProjectUseCase = async (projectId: number, alternativeId: number) => {
   await addAlternativeToProject(projectId, alternativeId);
 
-  // Invalidate relevant cache tags
-  revalidateTag(`project-alternatives/${projectId}`);
+  revalidateTag(`project/${projectId}`);
   revalidateTag(`alternative/${alternativeId}`);
 };
 
