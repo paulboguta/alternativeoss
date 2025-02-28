@@ -15,9 +15,11 @@ export async function ProjectsContent({ searchParams }: { searchParams: SearchPa
   const sortField = sort ? (sort as SortField) : undefined;
   const sortDirection = dir ? (dir as SortDirection) : undefined;
 
+  const currentPage = page ? Number(page) : 1;
+
   const result = await getProjectsUseCase({
     searchQuery: q as string,
-    page: Number(page as string),
+    page: currentPage,
     limit: ITEMS_PER_PAGE,
     sortField,
     sortDirection,

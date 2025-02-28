@@ -8,6 +8,7 @@ import { Suspense } from 'react';
 
 export default async function HomePage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
+
   return (
     <div>
       <section className="mx-auto mb-6 flex flex-col gap-3 px-8 py-12 lg:py-20">
