@@ -5,9 +5,8 @@ import { SearchParams } from 'nuqs/server';
 import { Search } from './search';
 import { Sorting } from './sorting';
 
-export async function Toolbar({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const awaitedParams = await searchParams;
-  const { sort, dir } = awaitedParams;
+export async function Toolbar({ searchParams }: { searchParams: SearchParams }) {
+  const { sort, dir } = searchParams;
 
   const defaultSort = {
     field: sort ? (sort as SortField) : 'createdAt',

@@ -5,27 +5,19 @@ import { ITEMS_PER_PAGE } from '@/lib/search-params';
 import { SortDirection } from '@/config/sorting';
 
 import { SortField } from '@/config/sorting';
-import { searchParams } from '@/lib/search-params';
 import { SearchParams } from 'nuqs/server';
 import { Pagination } from '../pagination';
 import { ProjectCard } from './project-card';
 
-export async function ProjectsContent({
-  searchParams: rawSearchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const awaitedParams = await rawSearchParams;
+export async function ProjectsContent({ searchParams }: { searchParams: SearchParams }) {
+  const { page, sort, dir, q } = searchParams;
 
-  const { page, sort, dir, q } = awaitedParams;
-  const currentPage = page ? searchParams.page.parseServerSide(page) : undefined;
   const sortField = sort ? (sort as SortField) : undefined;
   const sortDirection = dir ? (dir as SortDirection) : undefined;
-  const searchQuery = q ? searchParams.q.parseServerSide(q) : '';
 
   const result = await getProjectsUseCase({
-    searchQuery,
-    page: currentPage,
+    searchQuery: q as string,
+    page: Number(page as string),
     limit: ITEMS_PER_PAGE,
     sortField,
     sortDirection,
@@ -50,8 +42,8 @@ export async function ProjectsContent({
       params.set('dir', sortDirection);
     }
 
-    if (searchQuery) {
-      params.set('q', searchQuery);
+    if (q) {
+      params.set('q', q as string);
     }
 
     const queryString = params.toString();
@@ -78,8 +70,8 @@ export async function ProjectsContent({
           <div className="col-span-3 py-8 text-center">
             <h3 className="text-muted-foreground text-lg font-medium">No projects found</h3>
             <p className="text-muted-foreground">
-              {searchQuery
-                ? `No projects match your search for "${searchQuery}"`
+              {q
+                ? `No projects match your search for "${q}"`
                 : 'No projects available at this time'}
             </p>
           </div>

@@ -6,7 +6,8 @@ import { ToolbarSkeleton } from '@/components/toolbar/toolbar-skeleton';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
-export default function HomePage(props: { searchParams: Promise<SearchParams> }) {
+export default async function HomePage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   return (
     <div>
       <section className="mx-auto mb-6 flex flex-col gap-3 px-8 py-12 lg:py-20">
@@ -17,12 +18,12 @@ export default function HomePage(props: { searchParams: Promise<SearchParams> })
       </section>
 
       <Suspense fallback={<ToolbarSkeleton />}>
-        <Toolbar searchParams={props.searchParams} />
+        <Toolbar searchParams={searchParams} />
       </Suspense>
 
       <section className="px-8 pb-24">
         <Suspense fallback={<SkeletonProjectsContent />}>
-          <ProjectsContent searchParams={props.searchParams} />
+          <ProjectsContent searchParams={searchParams} />
         </Suspense>
       </section>
     </div>
