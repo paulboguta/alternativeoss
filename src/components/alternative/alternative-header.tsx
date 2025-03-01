@@ -40,6 +40,7 @@ export async function AlternativeHeader({ alternative }: { alternative: Alternat
       <section className="mx-auto flex flex-col gap-3 py-8 md:pb-8 lg:py-15 lg:pb-20">
         <div className="flex items-start gap-2 md:items-end">
           <OptimizedImage
+            className="rounded"
             isIcon
             src={getFaviconUrl(alternative.url || '')}
             alt={alternative.name}
