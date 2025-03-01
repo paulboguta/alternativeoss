@@ -3,7 +3,7 @@ import { AlternativePageContent } from '@/components/alternative/alternative-pag
 import { AlternativeHeaderSkeleton } from '@/components/alternative/skeleton-alternative-header';
 import { AlternativeContentSkeleton } from '@/components/alternative/skeleton-alternative-page-content';
 import { websiteConfig } from '@/config/website';
-import { getAlternatives } from '@/data-access/alternative';
+import { getAllAlternatives } from '@/data-access/alternative';
 import { getProjectsByAlternative } from '@/data-access/project';
 import { generateAlternativeJsonLd } from '@/lib/schema';
 import { notFound } from 'next/navigation';
@@ -90,7 +90,7 @@ function AlternativeJsonLd({
 }
 
 export async function generateStaticParams() {
-  const alternatives = await getAlternatives();
+  const alternatives = await getAllAlternatives();
 
   return alternatives.map(alternative => ({
     slug: alternative.slug,

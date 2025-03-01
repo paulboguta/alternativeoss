@@ -7,7 +7,7 @@ import debounce from 'debounce';
 import { Search as SearchIcon } from 'lucide-react';
 import { LoadingIndicator } from '../loading-indicator';
 
-export function Search() {
+export function Search({ searchPlaceholder }: { searchPlaceholder: string }) {
   const { isPending, setSearchTerm, setPage } = useSearch();
 
   const debouncedSetSearchTerm = debounce((value: string) => {
@@ -27,7 +27,7 @@ export function Search() {
       )}
       <Input
         type="search"
-        placeholder="Search projects..."
+        placeholder={searchPlaceholder}
         className="w-full pr-4 pl-8"
         onChange={e => debouncedSetSearchTerm(e.target.value)}
         aria-label="Search projects"

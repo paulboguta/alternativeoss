@@ -5,17 +5,15 @@ import { createCategory, getCategories, updateProjectCategories } from '@/data-a
 import { getProject, updateProjectContent, updateProjectRepoStats } from '@/data-access/project';
 
 import { generateProjectAlternatives } from '@/ai/alternatives';
-import {
-  createAlternative,
-  getAlternativeByName,
-  getAlternatives,
-  updateProjectAlternatives,
-} from '@/data-access/alternative';
+import { getAlternativeByName, updateProjectAlternatives } from '@/data-access/alternative';
+import { db } from '@/db';
+import { alternatives } from '@/db/schema';
 import { getFaviconUrl } from '@/lib/favicon';
 import { generateScreenshot } from '@/lib/image';
 import { getGitHubStats } from '@/services/github';
 import { inngest } from '@/services/inngest';
 import { CreateProjectForm } from '@/types/project';
+import { createAlternativeUseCase } from '@/use-cases/alternative';
 import { updateLicenseProjectUseCase } from '@/use-cases/license';
 import { createProjectUseCase } from '@/use-cases/project';
 import { generateSlug } from '@/utils/slug';
@@ -131,7 +129,7 @@ export const handleProjectCreated = inngest.createFunction(
 
     // * CLAUDE SONNET POWERED
     const createProjectAlternatives = step.run('create-project-alternatives', async () => {
-      const alternatives = await getAlternatives();
+      const allAlternatives = await db.select().from(alternatives);
 
       const project = await getProject(slug);
 
@@ -141,7 +139,7 @@ export const handleProjectCreated = inngest.createFunction(
 
       const projectAlternatives = await generateProjectAlternatives(
         name,
-        alternatives.map(alternative => alternative.name),
+        allAlternatives.map(alternative => alternative.name),
         ai_description
       );
 
@@ -150,7 +148,7 @@ export const handleProjectCreated = inngest.createFunction(
 
       // Map assigned alternative names to their IDs
       const assignedAlternativeIds = assignedAlternativeNames
-        .map((name: string) => alternatives.find(a => a.name === name)?.id)
+        .map((name: string) => allAlternatives.find(a => a.name === name)?.id)
         .filter((id: number | undefined): id is number => id !== undefined);
 
       const alternativesToAddIds = await Promise.all(
@@ -163,16 +161,13 @@ export const handleProjectCreated = inngest.createFunction(
 
           const slug = generateSlug(alternative.name);
           const faviconUrl = alternative.url ? getFaviconUrl(alternative.url) : null;
-          const created = await createAlternative(
-            alternative.name,
-            alternative.url,
+
+          const created = await createAlternativeUseCase({
+            name: alternative.name,
+            url: alternative.url,
             slug,
-            faviconUrl,
-            // to implement later:
-            null, // price
-            null, // pricingModel
-            true // isPaid
-          );
+            faviconUrl: faviconUrl ?? '',
+          });
 
           if (!created) {
             throw new Error('Failed to create alternative');

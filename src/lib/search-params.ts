@@ -15,11 +15,11 @@ export const searchParams = {
     shallow: false,
     startTransition,
   }),
-  sort: parseAsString.withDefault('createdAt').withOptions({
+  sort: parseAsString.withOptions({
     shallow: false,
     startTransition,
   }),
-  dir: parseAsString.withDefault('desc').withOptions({
+  dir: parseAsString.withOptions({
     shallow: false,
     startTransition,
   }),

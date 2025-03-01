@@ -1,4 +1,4 @@
-import { anthropic, CLAUDE_MODELS, cleanClaudeResponse } from "./core";
+import { anthropic, CLAUDE_MODELS, cleanClaudeResponse } from './core';
 
 export async function generateProjectAlternatives(
   projectName: string,
@@ -9,7 +9,7 @@ export async function generateProjectAlternatives(
     model: CLAUDE_MODELS.SONNET,
     messages: [
       {
-        role: "user",
+        role: 'user',
         content: `
     You are an expert at open source software as well as proprietary software. You are tasked to generate 1-5 alternatives for the following project. You will be given project name and list of
     available alternatives. You should assign the project to the relevant alternatives,
@@ -35,7 +35,7 @@ export async function generateProjectAlternatives(
     ${JSON.stringify({
       projectName,
       alternatives,
-      additionalContext: ai_description || "",
+      additionalContext: ai_description || '',
     })}
     </data_inputs>
     
@@ -74,8 +74,55 @@ export async function generateProjectAlternatives(
     max_tokens: 1000,
   });
 
-  const responseText =
-    response.content[0]?.type === "text" ? response.content[0].text : "";
+  const responseText = response.content[0]?.type === 'text' ? response.content[0].text : '';
+
+  return cleanClaudeResponse(responseText);
+}
+
+export async function generateAlternativeSummary(alternativeName: string, ai_description?: string) {
+  const response = await anthropic.messages.create({
+    model: CLAUDE_MODELS.SONNET,
+    messages: [
+      {
+        role: 'user',
+        content: `
+        You are an expert at open source software as well as proprietary software. You are tasked to generate a summary for the following proprietary software.
+        Please make sure the summary is short and concise, preffered length is 9-14 words. If provided with additional context (most likely website text) you can use it
+        to enhance your knowledge, but you should base the summary on your knowledge about the software first.
+        
+        <data_inputs>
+        ${JSON.stringify({
+          alternativeName,
+          additionalContext: ai_description || '',
+        })}
+        </data_inputs>
+        
+        <assistant_instructions>
+        You check if the output format is just a JSON - nothing else. Reasonate about it here.
+        </assistant_instructions>
+
+      Output Format (JSON):
+    
+      {
+        "summary": "This is a summary"
+      }
+      
+      Example summary of Cal.com:
+
+      {
+        "summary": "Cal.com is a scheduling tool that allows you to schedule meetings with your clients."
+      }
+        
+        Requirements:
+        1. Uses JSON as a format without additional text.
+        2. The weight for the reasoning should be: 70% your knowledge, 30% the data provided
+        `,
+      },
+    ],
+    max_tokens: 180,
+  });
+
+  const responseText = response.content[0]?.type === 'text' ? response.content[0].text : '';
 
   return cleanClaudeResponse(responseText);
 }

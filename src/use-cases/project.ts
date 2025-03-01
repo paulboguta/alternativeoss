@@ -1,4 +1,4 @@
-import { SortDirection, SortField } from '@/config/sorting';
+import { DEFAULT_SORT_PROJECTS } from '@/config/sorting';
 import {
   addAlternativeToProject,
   addProjectToCategory,
@@ -98,15 +98,15 @@ export const getProjectsUseCase = async ({
   searchQuery = '',
   page = 1,
   limit = 10,
-  sortField = 'createdAt' as SortField,
-  sortDirection = 'desc' as SortDirection,
+  sortField = DEFAULT_SORT_PROJECTS.field,
+  sortDirection = DEFAULT_SORT_PROJECTS.direction,
   filters = {},
 }: {
   searchQuery?: string;
   page?: number;
   limit?: number;
-  sortField?: SortField;
-  sortDirection?: SortDirection;
+  sortField?: string;
+  sortDirection?: string;
   filters?: Record<string, unknown>;
 }) => {
   'use cache';
