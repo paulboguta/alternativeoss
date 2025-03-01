@@ -3,6 +3,8 @@ import { ProjectsContent } from '@/components/project/projects-content';
 import { SkeletonProjectsContent } from '@/components/project/skeleton-projects';
 import { Toolbar } from '@/components/toolbar/toolbar';
 import { ToolbarSkeleton } from '@/components/toolbar/toolbar-skeleton';
+import { DEFAULT_SORT_PROJECTS, PROJECTS_SORT_OPTIONS } from '@/config/sorting';
+import { ProjectSortField } from '@/types/sorting';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
@@ -19,7 +21,11 @@ export default async function HomePage(props: { searchParams: Promise<SearchPara
       </section>
 
       <Suspense fallback={<ToolbarSkeleton />}>
-        <Toolbar searchParams={searchParams} />
+        <Toolbar<ProjectSortField>
+          sortOptions={PROJECTS_SORT_OPTIONS}
+          defaultSort={DEFAULT_SORT_PROJECTS}
+          searchPlaceholder="Search projects..."
+        />
       </Suspense>
 
       <section className="px-8 pb-24">

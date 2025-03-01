@@ -2,7 +2,7 @@ import { getProjectsUseCase } from '@/use-cases/project';
 
 import { ITEMS_PER_PAGE, loadSearchParams } from '@/lib/search-params';
 
-import { SortDirection, SortField } from '@/config/sorting';
+import { DEFAULT_SORT_PROJECTS } from '@/config/sorting';
 import { SearchParams } from 'nuqs/server';
 import { Pagination } from '../pagination';
 import { ProjectCard } from './project-card';
@@ -16,8 +16,8 @@ export async function ProjectsContent({ searchParams }: { searchParams: SearchPa
     searchQuery: q as string,
     page: currentPage,
     limit: ITEMS_PER_PAGE,
-    sortField: sort as SortField,
-    sortDirection: dir as SortDirection,
+    sortField: sort ?? DEFAULT_SORT_PROJECTS.field,
+    sortDirection: dir ?? DEFAULT_SORT_PROJECTS.direction,
   });
 
   const { projects: paginatedProjects, pagination } = result;

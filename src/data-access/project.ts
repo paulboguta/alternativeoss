@@ -1,3 +1,4 @@
+import { DEFAULT_SORT_PROJECTS } from '@/config/sorting';
 import { db } from '@/db';
 import {
   alternatives,
@@ -62,8 +63,8 @@ export const getProjects = async ({
   searchQuery = '',
   page = 1,
   limit = 10,
-  sortField = 'createdAt',
-  sortDirection = 'desc',
+  sortField = DEFAULT_SORT_PROJECTS.field,
+  sortDirection = DEFAULT_SORT_PROJECTS.direction,
   // TODO: Apply filters when implemented
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   filters = {},
