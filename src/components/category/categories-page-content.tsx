@@ -21,7 +21,7 @@ export async function CategoriesPageContent({ categories }: { categories: Catego
 
           <div className="text-muted-foreground flex w-fit items-center gap-1">
             <p>{category.count}</p>
-            <p>Alternatives</p>
+            <p>{category.count === 1 ? 'Alternative' : 'Alternatives'}</p>
           </div>
         </Link>
       ))}
