@@ -1,9 +1,9 @@
 'use server';
 
-import { createAlternative } from '@/data-access/alternative';
 import { getFaviconUrl } from '@/lib/favicon';
 import { adminAction } from '@/lib/safe-action';
 import { createAlternativeFormSchema } from '@/types/alternative';
+import { createAlternativeUseCase } from '@/use-cases/alternative';
 import { generateSlug } from '@/utils/slug';
 
 export const createAlternativeAction = adminAction
@@ -11,21 +11,18 @@ export const createAlternativeAction = adminAction
   .input(createAlternativeFormSchema)
   .handler(async ({ input }) => {
     try {
-      const { name, url, price, pricingModel, isPaid } = input;
+      const { name, url } = input;
       const slug = generateSlug(name);
 
       // Generate favicon URL if URL is provided
       const faviconUrl = url ? getFaviconUrl(url) : null;
 
-      const alternative = await createAlternative(
+      const alternative = await createAlternativeUseCase({
         name,
-        url || '',
+        url: url || '',
         slug,
-        faviconUrl,
-        price,
-        pricingModel || null,
-        isPaid
-      );
+        faviconUrl: faviconUrl || '',
+      });
 
       return {
         success: true,
