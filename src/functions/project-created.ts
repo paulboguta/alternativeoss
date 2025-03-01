@@ -8,9 +8,10 @@ import { generateProjectAlternatives } from '@/ai/alternatives';
 import {
   createAlternative,
   getAlternativeByName,
-  getAlternatives,
   updateProjectAlternatives,
 } from '@/data-access/alternative';
+import { db } from '@/db';
+import { alternatives } from '@/db/schema';
 import { getFaviconUrl } from '@/lib/favicon';
 import { generateScreenshot } from '@/lib/image';
 import { getGitHubStats } from '@/services/github';
@@ -131,7 +132,7 @@ export const handleProjectCreated = inngest.createFunction(
 
     // * CLAUDE SONNET POWERED
     const createProjectAlternatives = step.run('create-project-alternatives', async () => {
-      const alternatives = await getAlternatives();
+      const allAlternatives = await db.select().from(alternatives);
 
       const project = await getProject(slug);
 
@@ -141,7 +142,7 @@ export const handleProjectCreated = inngest.createFunction(
 
       const projectAlternatives = await generateProjectAlternatives(
         name,
-        alternatives.map(alternative => alternative.name),
+        allAlternatives.map(alternative => alternative.name),
         ai_description
       );
 
@@ -150,7 +151,7 @@ export const handleProjectCreated = inngest.createFunction(
 
       // Map assigned alternative names to their IDs
       const assignedAlternativeIds = assignedAlternativeNames
-        .map((name: string) => alternatives.find(a => a.name === name)?.id)
+        .map((name: string) => allAlternatives.find(a => a.name === name)?.id)
         .filter((id: number | undefined): id is number => id !== undefined);
 
       const alternativesToAddIds = await Promise.all(
