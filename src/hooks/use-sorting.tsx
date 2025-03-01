@@ -39,8 +39,8 @@ export function useSorting<T extends string>({ defaultSort }: UseSortingProps<T>
     throttleMs: 200,
   });
 
-  const currentSortField = defaultSort?.field || searchParams.get('sort');
-  const currentSortDirection = defaultSort?.direction || searchParams.get('dir');
+  const currentSortField = searchParams.get('sort') || defaultSort?.field;
+  const currentSortDirection = searchParams.get('dir') || defaultSort?.direction;
 
   const handleSortChange = (option: SortOption<T>) => {
     // If the selected option is already active, just close the dropdown
