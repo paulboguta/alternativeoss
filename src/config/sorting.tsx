@@ -1,16 +1,26 @@
+import {
+  AlternativeSortField,
+  CommonSortField,
+  ProjectSortField,
+  SortOption,
+} from '@/types/sorting';
 import { ArrowDownAZ, ArrowDownWideNarrow, ArrowUpAZ } from 'lucide-react';
 
-export type SortField = 'name' | 'repoStars' | 'createdAt' | 'repoLastCommit';
-export type SortDirection = 'asc' | 'desc';
-
-export type SortOption = {
-  field: SortField;
-  direction: SortDirection;
-  label: string;
-  icon: React.ReactNode;
+export const DEFAULT_SORT_PROJECTS: SortOption<ProjectSortField> = {
+  field: 'createdAt',
+  direction: 'desc',
+  label: 'Newest',
+  icon: <ArrowDownAZ className="mr-2 h-4 w-4" />,
 };
 
-export const sortOptions: SortOption[] = [
+export const DEFAULT_SORT_ALTERNATIVES: SortOption<AlternativeSortField> = {
+  field: 'projectCount',
+  direction: 'desc',
+  label: 'Most Popular',
+  icon: <ArrowDownWideNarrow className="mr-2 h-4 w-4" />,
+};
+
+const COMMON_SORT_OPTIONS: SortOption<CommonSortField>[] = [
   {
     field: 'createdAt',
     direction: 'desc',
@@ -21,14 +31,28 @@ export const sortOptions: SortOption[] = [
     field: 'name',
     direction: 'asc',
     label: 'Name (A-Z)',
-    icon: <ArrowDownAZ className="mr-2 h-4 w-4" />,
+    icon: <ArrowUpAZ className="mr-2 h-4 w-4" />,
   },
   {
     field: 'name',
     direction: 'desc',
     label: 'Name (Z-A)',
-    icon: <ArrowUpAZ className="mr-2 h-4 w-4" />,
+    icon: <ArrowDownAZ className="mr-2 h-4 w-4" />,
   },
+];
+
+export const ALTERNATIVES_SORT_OPTIONS: SortOption<AlternativeSortField>[] = [
+  ...(COMMON_SORT_OPTIONS as SortOption<AlternativeSortField>[]),
+  {
+    field: 'projectCount',
+    direction: 'desc',
+    label: 'Most Popular',
+    icon: <ArrowDownWideNarrow className="mr-2 h-4 w-4" />,
+  },
+];
+
+export const PROJECTS_SORT_OPTIONS: SortOption<ProjectSortField>[] = [
+  ...(COMMON_SORT_OPTIONS as SortOption<ProjectSortField>[]),
   {
     field: 'repoStars',
     direction: 'desc',

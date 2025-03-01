@@ -7,20 +7,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { SortDirection, SortField } from '@/config/sorting';
+
 import { useSorting } from '@/hooks/use-sorting';
+import { SortOption } from '@/types/sorting';
 import { SortDesc } from 'lucide-react';
 import { LoadingIndicator } from '../loading-indicator';
 
-type SortingProps = {
-  defaultSort?: {
-    field: SortField;
-    direction: SortDirection;
-  };
+type SortingProps<T extends string> = {
+  defaultSort: SortOption<T>;
+  sortOptions: SortOption<T>[];
 };
 
-export function Sorting({ defaultSort }: SortingProps) {
-  const { open, setOpen, isPending, sort, handleSortChange, sortOptions } = useSorting({
+export function Sorting<T extends string>({ defaultSort, sortOptions }: SortingProps<T>) {
+  const { open, setOpen, isPending, sort, handleSortChange } = useSorting<T>({
     defaultSort,
   });
 
@@ -30,7 +29,7 @@ export function Sorting({ defaultSort }: SortingProps) {
         <Button variant="outline" size="sm" className="h-9 gap-1 md:gap-2">
           {isPending ? <LoadingIndicator /> : <SortDesc className="h-3.5 w-3.5" />}
           <span className="font-medium">
-            {sortOptions.find(option => option.field === sort)?.label || 'Newest'}
+            {sortOptions.find(option => option.field === sort)?.label || defaultSort.label}
           </span>
         </Button>
       </DropdownMenuTrigger>

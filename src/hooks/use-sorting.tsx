@@ -1,18 +1,15 @@
 'use client';
 
-import { SortDirection, SortField, SortOption, sortOptions } from '@/config/sorting';
+import { SortOption } from '@/types/sorting';
 import { useSearchParams } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
 
-type UseSortingProps = {
-  defaultSort?: {
-    field: SortField;
-    direction: SortDirection;
-  };
+type UseSortingProps<T extends string> = {
+  defaultSort: SortOption<T>;
 };
 
-export function useSorting({ defaultSort }: UseSortingProps) {
+export function useSorting<T extends string>({ defaultSort }: UseSortingProps<T>) {
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
 
@@ -22,7 +19,7 @@ export function useSorting({ defaultSort }: UseSortingProps) {
     startTransition,
     shallow: false,
     clearOnDefault: true,
-    defaultValue: 'createdAt',
+    defaultValue: defaultSort?.field,
     throttleMs: 200,
   });
 
@@ -38,14 +35,14 @@ export function useSorting({ defaultSort }: UseSortingProps) {
     startTransition,
     shallow: false,
     clearOnDefault: true,
-    defaultValue: 'desc',
+    defaultValue: defaultSort?.direction,
     throttleMs: 200,
   });
 
-  const currentSortField = defaultSort?.field || searchParams.get('sort') || 'createdAt';
-  const currentSortDirection = defaultSort?.direction || searchParams.get('dir') || 'desc';
+  const currentSortField = defaultSort?.field || searchParams.get('sort');
+  const currentSortDirection = defaultSort?.direction || searchParams.get('dir');
 
-  const handleSortChange = (option: SortOption) => {
+  const handleSortChange = (option: SortOption<T>) => {
     // If the selected option is already active, just close the dropdown
     if (option.field === currentSortField && option.direction === currentSortDirection) {
       setOpen(false);
@@ -66,6 +63,5 @@ export function useSorting({ defaultSort }: UseSortingProps) {
     sort,
     dir,
     handleSortChange,
-    sortOptions,
   };
 }
