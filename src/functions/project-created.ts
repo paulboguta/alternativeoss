@@ -5,11 +5,7 @@ import { createCategory, getCategories, updateProjectCategories } from '@/data-a
 import { getProject, updateProjectContent, updateProjectRepoStats } from '@/data-access/project';
 
 import { generateProjectAlternatives } from '@/ai/alternatives';
-import {
-  createAlternative,
-  getAlternativeByName,
-  updateProjectAlternatives,
-} from '@/data-access/alternative';
+import { getAlternativeByName, updateProjectAlternatives } from '@/data-access/alternative';
 import { db } from '@/db';
 import { alternatives } from '@/db/schema';
 import { getFaviconUrl } from '@/lib/favicon';
@@ -17,6 +13,7 @@ import { generateScreenshot } from '@/lib/image';
 import { getGitHubStats } from '@/services/github';
 import { inngest } from '@/services/inngest';
 import { CreateProjectForm } from '@/types/project';
+import { createAlternativeUseCase } from '@/use-cases/alternative';
 import { updateLicenseProjectUseCase } from '@/use-cases/license';
 import { createProjectUseCase } from '@/use-cases/project';
 import { generateSlug } from '@/utils/slug';
@@ -164,16 +161,13 @@ export const handleProjectCreated = inngest.createFunction(
 
           const slug = generateSlug(alternative.name);
           const faviconUrl = alternative.url ? getFaviconUrl(alternative.url) : null;
-          const created = await createAlternative(
-            alternative.name,
-            alternative.url,
+
+          const created = await createAlternativeUseCase({
+            name: alternative.name,
+            url: alternative.url,
             slug,
-            faviconUrl,
-            // to implement later:
-            null, // price
-            null, // pricingModel
-            true // isPaid
-          );
+            faviconUrl: faviconUrl ?? '',
+          });
 
           if (!created) {
             throw new Error('Failed to create alternative');

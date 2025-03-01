@@ -35,7 +35,7 @@ export function AlternativeCard({
               </div>
               <span className="text-foreground">{name}</span>
             </h3>
-            <p className="text-muted-foreground line-clamp-3 min-h-[30px] text-sm">{summary}</p>
+            <p className="text-muted-foreground line-clamp-2 min-h-[30px] text-sm">{summary}</p>
           </div>
         </div>
         <div className="relative mt-4 flex flex-col gap-2">

@@ -23,15 +23,21 @@ export const getAlternativeByName = async (name: string) => {
   return alternative[0];
 };
 
-export const createAlternative = async (
-  name: string,
-  url: string,
-  slug: string = generateSlug(name),
-  faviconUrl: string | null = null,
-  price?: number | null,
-  pricingModel?: string | null,
-  isPaid: boolean = true
-) => {
+export const createAlternative = async ({
+  name,
+  url,
+  slug = generateSlug(name),
+  summary = null,
+  faviconUrl = null,
+  price = null,
+}: {
+  name: string;
+  url: string;
+  slug?: string;
+  summary?: string | null;
+  faviconUrl?: string | null;
+  price?: number | null;
+}) => {
   const alternative = await db
     .insert(alternatives)
     .values({
@@ -40,8 +46,7 @@ export const createAlternative = async (
       slug,
       faviconUrl,
       price: price ?? null,
-      pricingModel: pricingModel ?? null,
-      isPaid,
+      summary: summary ?? null,
     })
     .returning();
 
@@ -143,8 +148,6 @@ export const getAlternatives = async ({
 
   // Execute both queries in parallel for better performance
   const [results, totalCount] = await Promise.all([resultsPromise, totalCountPromise]);
-
-  console.log(results);
 
   return {
     alternatives: results,

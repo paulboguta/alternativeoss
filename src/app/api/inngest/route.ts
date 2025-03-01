@@ -1,5 +1,6 @@
 import { handleProjectCreated } from '@/functions/project-created';
 import { handleProjectStatsUpdate, updateGitHubStats } from '@/functions/repo-stats';
+
 import { inngest } from '@/services/inngest';
 import { serve } from 'inngest/next';
 

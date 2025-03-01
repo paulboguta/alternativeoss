@@ -1,5 +1,6 @@
 import { AlternativeCard } from '@/components/alternative/alternative-card';
 import { AlternativesHeader } from '@/components/alternative/alternatives-header';
+import { SkeletonAlternativesContent } from '@/components/alternative/skeleton-alternatives';
 import { Pagination } from '@/components/pagination';
 import { Toolbar } from '@/components/toolbar/toolbar';
 import { ToolbarSkeleton } from '@/components/toolbar/toolbar-skeleton';
@@ -81,7 +82,7 @@ export default async function AlternativesPage({
       </Suspense>
 
       <section className="px-8 pb-24">
-        <Suspense fallback={<div>loading ...</div>}>
+        <Suspense fallback={<SkeletonAlternativesContent />}>
           <AlternativesContent searchParams={awaitedSearchParams} />
         </Suspense>
       </section>

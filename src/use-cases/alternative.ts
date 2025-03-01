@@ -1,6 +1,44 @@
+import { generateAlternativeSummary } from '@/ai/alternatives';
+import { extractJsonFromResponse } from '@/ai/core';
 import { DEFAULT_SORT_ALTERNATIVES } from '@/config/sorting';
-import { getAlternatives } from '@/data-access/alternative';
-import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache';
+import { createAlternative, getAlternatives } from '@/data-access/alternative';
+import {
+  unstable_cacheLife as cacheLife,
+  unstable_cacheTag as cacheTag,
+  revalidateTag,
+} from 'next/cache';
+
+export const createAlternativeUseCase = async ({
+  name,
+  url,
+  slug,
+  faviconUrl,
+}: {
+  name: string;
+  url: string;
+  slug: string;
+  faviconUrl: string;
+}) => {
+  try {
+    const summary = await generateAlternativeSummary(name);
+
+    const summaryResult = typeof summary === 'string' ? extractJsonFromResponse(summary) : summary;
+
+    const alternative = await createAlternative({
+      name,
+      url,
+      slug,
+      faviconUrl,
+      summary: String(summaryResult?.summary),
+    });
+    revalidateTag('alternatives');
+
+    return alternative;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
 
 export const getAlternativesUseCase = async ({
   searchQuery = '',
