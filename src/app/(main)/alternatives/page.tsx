@@ -12,7 +12,7 @@ import { getAlternativesUseCase } from '@/use-cases/alternative';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
-export async function AlternativesContent({ searchParams }: { searchParams: SearchParams }) {
+async function AlternativesContent({ searchParams }: { searchParams: SearchParams }) {
   const { q, sort, dir, page } = await loadSearchParams(searchParams);
 
   const currentPage = page ? Number(page) : 1;

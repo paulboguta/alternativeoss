@@ -74,7 +74,6 @@ export const getAlternatives = async ({
 
   // Build the ORDER BY clause
   const orderByClause = (() => {
-    console.log(sortField, sortDirection);
     if (sortField === 'name') {
       return sortDirection === 'asc' ? sql`alternatives.name ASC` : sql`alternatives.name DESC`;
     }
@@ -84,12 +83,6 @@ export const getAlternatives = async ({
         ? sql`COUNT(${projectAlternatives.projectId}) ASC`
         : sql`COUNT(${projectAlternatives.projectId}) DESC`;
     }
-
-    // if (sortField === 'repoLastCommit') {
-    //   return sortDirection === 'asc'
-    //     ? sql`alternatives.repo_last_commit ASC`
-    //     : sql`alternatives.repo_last_commit DESC`;
-    // }
 
     return sortDirection === 'asc'
       ? sql`alternatives.created_at ASC`
@@ -150,6 +143,8 @@ export const getAlternatives = async ({
 
   // Execute both queries in parallel for better performance
   const [results, totalCount] = await Promise.all([resultsPromise, totalCountPromise]);
+
+  console.log(results);
 
   return {
     alternatives: results,
