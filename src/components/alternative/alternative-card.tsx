@@ -43,7 +43,7 @@ export function AlternativeCard({
             Explore <span className="font-bold">{count}</span> open source alternatives
           </span>
           <div className="flex gap-2">
-            {projectFaviconUrls?.slice(0, 9).map(url => (
+            {projectFaviconUrls?.slice(0, 6).map(url => (
               <div
                 key={url}
                 className="items-center justify-center rounded-md border border-zinc-800 bg-zinc-300/10 p-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
