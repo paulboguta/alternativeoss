@@ -21,6 +21,7 @@ export function Pagination({ totalPages }: PaginationProps) {
   const [currentPage, setCurrentPage] = useQueryState('page', {
     startTransition,
     shallow: false,
+    scroll: true,
     defaultValue: '1',
     clearOnDefault: true,
     throttleMs: 200,
