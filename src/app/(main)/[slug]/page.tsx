@@ -120,8 +120,8 @@ async function LeftSidebar({ projectId }: { projectId: number }) {
   const sidebarData = await getProjectSidebarData(projectId);
 
   return (
-    <aside className="border-dashed px-8 pt-4 pb-0 md:border-r md:pt-0">
-      <div className="space-y-6 md:sticky md:top-24">
+    <aside className="order-last border-dashed px-8 pt-4 pb-0 md:order-first md:border-r md:pt-0">
+      <div className="space-y-6 pb-8 md:sticky md:top-24">
         <ProjectAlternatives alternatives={sidebarData.projectAlternatives} />
         <ProjectCategories categories={sidebarData.projectCategories} />
         <OtherCategories categories={sidebarData.otherCategories} />
