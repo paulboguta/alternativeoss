@@ -1,4 +1,5 @@
 import { DEFAULT_SORT_PROJECTS } from '@/config/sorting';
+import { TRENDING_PROJECTS } from '@/config/trending';
 import { db } from '@/db';
 import {
   alternatives,
@@ -9,7 +10,7 @@ import {
   projects,
 } from '@/db/schema';
 import { NewProject } from '@/db/types';
-import { eq, ilike, or, sql, SQL } from 'drizzle-orm';
+import { eq, ilike, inArray, or, sql, SQL } from 'drizzle-orm';
 import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache';
 import { getAlternative } from './alternative';
 import { getCategory } from './category';
@@ -18,6 +19,16 @@ export const findProject = async (condition: SQL<unknown>): Promise<boolean | nu
   const result = await db.select().from(projects).where(condition).limit(1);
 
   return result.length > 0;
+};
+
+export const getTrendingProjects = async () => {
+  const result = await db
+    .select({ slug: projects.slug, faviconUrl: projects.faviconUrl, name: projects.name })
+    .from(projects)
+    .where(inArray(projects.slug, TRENDING_PROJECTS));
+
+  // order just like in the TRENDING_PROJECTS array
+  return TRENDING_PROJECTS.map(slug => result.find(project => project.slug === slug));
 };
 
 export const getAllProjects = async () => {

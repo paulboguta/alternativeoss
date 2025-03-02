@@ -30,8 +30,8 @@ export const getCategories = async () => {
   return result;
 };
 
-export const getCategoriesWithCount = async () => {
-  const result = await db
+export const getCategoriesWithCount = async ({ limit }: { limit?: number } = {}) => {
+  const query = db
     .select({
       id: categories.id,
       name: categories.name,
@@ -42,6 +42,12 @@ export const getCategoriesWithCount = async () => {
     .leftJoin(projectCategories, eq(categories.id, projectCategories.categoryId))
     .groupBy(categories.id, categories.name, categories.slug)
     .orderBy(sql`count(${projectCategories.projectId}) desc`);
+
+  if (limit) {
+    query.limit(limit);
+  }
+
+  const result = await query;
 
   return result;
 };
