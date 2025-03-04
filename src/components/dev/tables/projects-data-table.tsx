@@ -10,15 +10,16 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import { projects } from '@/db/schema';
 import { SVG_PLACEHOLDER } from '@/lib/favicon';
 import { ColumnDef } from '@tanstack/react-table';
+import { format } from 'date-fns';
 import { InferSelectModel } from 'drizzle-orm';
-import { MoreHorizontal, Pencil, Trash } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
+import Link from 'next/link';
 
 type Project = InferSelectModel<typeof projects>;
 
@@ -125,6 +126,20 @@ export const columns: ColumnDef<Project>[] = [
     },
   },
   {
+    accessorKey: 'scheduledAt',
+    enableHiding: true,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Scheduled At" />,
+    cell: ({ row }) => {
+      const scheduledAt = row.getValue('scheduledAt');
+
+      if (scheduledAt) {
+        return <div>{format(scheduledAt as Date, 'MM/dd/yyyy')}</div>;
+      }
+
+      return null;
+    },
+  },
+  {
     id: 'actions',
     cell: ({ row }) => {
       const project = row.original;
@@ -139,17 +154,9 @@ export const columns: ColumnDef<Project>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(project.id.toString())}>
-              Copy ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">
-              <Trash className="mr-2 h-4 w-4" />
-              Delete
+
+            <DropdownMenuItem asChild>
+              <Link href={`/dev/project/${project.slug}`}>Edit</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

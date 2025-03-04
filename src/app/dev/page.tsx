@@ -40,6 +40,11 @@ export default async function DevPage() {
           description="Connect projects to categories"
           href="/dev/project-categories"
         />
+        <DashboardCard
+          title="Projects Scheduled"
+          description="Manage scheduled projects"
+          href="/dev/projects-scheduled"
+        />
       </div>
     </div>
   );

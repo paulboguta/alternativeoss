@@ -2,50 +2,40 @@ import { ProjectAlternativesPageClient } from '@/components/dev/project-alternat
 import { db } from '@/db';
 import { alternatives, projectAlternatives, projects } from '@/db/schema';
 
-import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 async function ProjectAlternativesContent() {
-  // Get all projects and enhance with favicons
   const allProjects = await db.select().from(projects);
 
-  // Get all alternatives and enhance with favicons
   const allAlternatives = await db.select().from(alternatives);
 
-  // Get all connections with related data
-  const connections = await Promise.all(
-    allProjects.map(async project => {
-      const projectAlternativesData = await db
-        .select({
-          alternativeId: projectAlternatives.alternativeId,
-        })
-        .from(projectAlternatives)
-        .where(eq(projectAlternatives.projectId, project.id));
-
-      const connectedAlternativesWithUndefined = await Promise.all(
-        projectAlternativesData.map(async pa => {
-          const alternative = await db
-            .select()
-            .from(alternatives)
-            .where(eq(alternatives.id, pa.alternativeId))
-            .limit(1);
-
-          return alternative[0];
-        })
-      );
-
-      // Filter out any undefined values
-      const connectedAlternatives = connectedAlternativesWithUndefined.filter(
-        (alt): alt is (typeof allAlternatives)[0] => alt !== undefined
-      );
-
-      return {
-        project,
-        alternatives: connectedAlternatives,
-      };
+  const allConnections = await db
+    .select({
+      projectId: projectAlternatives.projectId,
+      alternativeId: projectAlternatives.alternativeId,
     })
+    .from(projectAlternatives);
+
+  // Create a map of alternative IDs to alternative objects for quick lookup
+  const alternativesMap = new Map(
+    allAlternatives.map(alternative => [alternative.id, alternative])
   );
+
+  const connections = allProjects.map(project => {
+    const projectConnections = allConnections.filter(
+      connection => connection.projectId === project.id
+    );
+
+    const connectedAlternatives = projectConnections
+      .map(connection => alternativesMap.get(connection.alternativeId))
+      .filter((alt): alt is (typeof allAlternatives)[0] => alt !== undefined);
+
+    return {
+      project,
+      alternatives: connectedAlternatives,
+    };
+  });
 
   return (
     <ProjectAlternativesPageClient

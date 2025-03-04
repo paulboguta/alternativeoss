@@ -138,13 +138,28 @@ export const getAlternatives = async ({
     .innerJoin(projectAlternatives, eq(alternatives.id, projectAlternatives.alternativeId))
     // inner join to get the favicon urls of the projects that are using the alternative
     .innerJoin(projects, eq(projectAlternatives.projectId, projects.id))
+    // Only include alternatives that have at least one project with isLive: true
+    .where(
+      sql`${condition} AND EXISTS (
+      SELECT 1 FROM ${projectAlternatives} pa
+      JOIN ${projects} p ON pa.project_id = p.id
+      WHERE pa.alternative_id = ${alternatives.id} AND p.is_live = true
+    )`
+    )
     .groupBy(alternatives.id, alternatives.name, alternatives.slug)
     .orderBy(orderByClause)
-    .where(condition)
     .limit(limit)
     .offset((page - 1) * limit);
 
-  const totalCountPromise = db.$count(alternatives, condition);
+  // Update the count query to only count alternatives with at least one live project
+  const totalCountPromise = db.$count(
+    alternatives,
+    sql`EXISTS (
+    SELECT 1 FROM ${projectAlternatives} pa
+    JOIN ${projects} p ON pa.project_id = p.id
+    WHERE pa.alternative_id = ${alternatives.id} AND p.is_live = true
+  )`
+  );
 
   // Execute both queries in parallel for better performance
   const [results, totalCount] = await Promise.all([resultsPromise, totalCountPromise]);

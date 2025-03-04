@@ -8,7 +8,27 @@ export const createProjectFormSchema = z.object({
   repoUrl: z.string().url().optional().or(z.literal('')),
   affiliateCode: z.string().optional(),
   ai_description: z.string().optional(),
+  scheduledAt: z.date().optional(),
 });
+
+export const updateProjectFormSchema = z.object({
+  slug: z.string(),
+  name: z.string().min(2, {
+    message: 'Name must be at least 2 characters.',
+  }),
+  url: z.string().url().optional().or(z.literal('')),
+  repoUrl: z.string().url().optional().or(z.literal('')),
+  affiliateCode: z.string().optional(),
+  summary: z.string().optional(),
+  longDescription: z.string().optional(),
+  features: z.array(z.string()).optional(),
+  isFeatured: z.boolean().optional(),
+  isLive: z.boolean().optional(),
+  isScheduled: z.boolean().optional(),
+  scheduledAt: z.date().optional().nullable(),
+});
+
+export type UpdateProjectForm = z.infer<typeof updateProjectFormSchema>;
 
 export type CreateProjectForm = z.infer<typeof createProjectFormSchema>;
 

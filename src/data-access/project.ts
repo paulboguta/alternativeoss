@@ -10,7 +10,7 @@ import {
   projects,
 } from '@/db/schema';
 import { NewProject } from '@/db/types';
-import { eq, ilike, inArray, or, sql, SQL } from 'drizzle-orm';
+import { and, eq, ilike, inArray, or, sql, SQL } from 'drizzle-orm';
 import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache';
 import { getAlternative } from './alternative';
 import { getCategory } from './category';
@@ -65,7 +65,7 @@ export const getProject = async (slug: string) => {
     .from(projects)
     .leftJoin(projectLicenses, eq(projects.id, projectLicenses.projectId))
     .leftJoin(licenses, eq(projectLicenses.licenseId, licenses.id))
-    .where(eq(projects.slug, slug));
+    .where(and(eq(projects.slug, slug), eq(projects.isLive, true)));
 
   return project[0];
 };
@@ -110,7 +110,7 @@ export const getProjects = async ({
   })();
 
   // Build the WHERE condition
-  let condition = sql`TRUE`;
+  let condition = sql`projects.is_live = true`;
 
   // Apply search if query exists
   if (searchQuery && searchQuery.trim()) {
@@ -125,7 +125,7 @@ export const getProjects = async ({
     );
 
     // Combine both conditions with OR
-    condition = or(searchCondition, fallbackCondition)!;
+    condition = sql`${condition} AND (${or(searchCondition, fallbackCondition)})`;
   }
 
   // TODO: Apply filters when implemented
@@ -234,49 +234,23 @@ export const getProjectsByAlternative = async (slug: string) => {
   };
 };
 
-export const updateProjectRepoStats = async (
+export const updateProject = async <T extends Partial<typeof projects.$inferInsert>>(
   slug: string,
-  stats: {
-    stars: number;
-    forks: number;
-    createdAt: string;
-    lastCommit: string;
-  }
+  data: T
 ) => {
+  // Always update the updatedAt field
+  const updateData = {
+    ...data,
+    updatedAt: new Date(),
+  };
+
   const updatedProjects = await db
     .update(projects)
-    .set({
-      repoStars: stats.stars,
-      repoForks: stats.forks,
-      repoCreatedAt: new Date(stats.createdAt),
-      repoLastCommit: new Date(stats.lastCommit),
-      updatedAt: new Date(),
-    })
+    .set(updateData)
     .where(eq(projects.slug, slug))
     .returning();
 
   return updatedProjects[0];
-};
-
-export const updateProjectContent = async (
-  slug: string,
-  content: {
-    summary: string;
-    longDescription: string;
-    features: string[];
-  }
-) => {
-  const project = await db
-    .update(projects)
-    .set({
-      summary: content.summary,
-      longDescription: content.longDescription,
-      features: content.features,
-    })
-    .where(eq(projects.slug, slug))
-    .returning();
-
-  return project[0];
 };
 
 export const addProjectToCategory = async (projectId: number, categoryId: number) => {

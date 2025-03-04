@@ -2,50 +2,38 @@ import { ProjectCategoriesPageClient } from '@/components/dev/project-categories
 import { db } from '@/db';
 import { categories, projectCategories, projects } from '@/db/schema';
 
-import { asc, eq } from 'drizzle-orm';
+import { asc } from 'drizzle-orm';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 async function ProjectCategoriesContent() {
-  // Get all projects and enhance with favicons
   const allProjects = await db.select().from(projects);
 
-  // Get all categories
   const allCategories = await db.select().from(categories).orderBy(asc(categories.name));
 
-  // Get all connections with related data
-  const connections = await Promise.all(
-    allProjects.map(async project => {
-      const projectCategoriesData = await db
-        .select({
-          categoryId: projectCategories.categoryId,
-        })
-        .from(projectCategories)
-        .where(eq(projectCategories.projectId, project.id));
-
-      const connectedCategoriesWithUndefined = await Promise.all(
-        projectCategoriesData.map(async pc => {
-          const category = await db
-            .select()
-            .from(categories)
-            .where(eq(categories.id, pc.categoryId))
-            .limit(1);
-
-          return category[0];
-        })
-      );
-
-      // Filter out any undefined values
-      const connectedCategories = connectedCategoriesWithUndefined.filter(
-        (cat): cat is (typeof allCategories)[0] => cat !== undefined
-      );
-
-      return {
-        project,
-        categories: connectedCategories,
-      };
+  const allConnections = await db
+    .select({
+      projectId: projectCategories.projectId,
+      categoryId: projectCategories.categoryId,
     })
-  );
+    .from(projectCategories);
+
+  const categoriesMap = new Map(allCategories.map(category => [category.id, category]));
+
+  const connections = allProjects.map(project => {
+    const projectConnections = allConnections.filter(
+      connection => connection.projectId === project.id
+    );
+
+    const connectedCategories = projectConnections
+      .map(connection => categoriesMap.get(connection.categoryId))
+      .filter((cat): cat is (typeof allCategories)[0] => cat !== undefined);
+
+    return {
+      project,
+      categories: connectedCategories,
+    };
+  });
 
   return (
     <ProjectCategoriesPageClient

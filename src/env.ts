@@ -1,5 +1,5 @@
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+import { createEnv } from '@t3-oss/env-nextjs';
+import { z } from 'zod';
 
 export const env = createEnv({
   server: {
@@ -10,8 +10,7 @@ export const env = createEnv({
     GITHUB_TOKEN: z.string().min(1),
     UPSTASH_REDIS_REST_URL: z.string().url(),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
-    NODE_ENV: z.enum(["development", "production"]),
-    CLERK_SECRET_KEY: z.string().min(1),
+    NODE_ENV: z.enum(['development', 'production']),
     FIRECRAWL_API_KEY: z.string().min(1),
     SCREENSHOTONE_ACCESS_KEY: z.string().min(1),
     SCREENSHOTONE_SECRET_KEY: z.string().min(1),
@@ -29,12 +28,10 @@ export const env = createEnv({
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     NODE_ENV: process.env.NODE_ENV,
-    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY,
     SCREENSHOTONE_ACCESS_KEY: process.env.SCREENSHOTONE_ACCESS_KEY,
     SCREENSHOTONE_SECRET_KEY: process.env.SCREENSHOTONE_SECRET_KEY,
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
-      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     NEXT_PUBLIC_CDN_URL: process.env.NEXT_PUBLIC_CDN_URL,
   },
 });

@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { createProjectFormSchema, type CreateProjectForm } from '@/types/project';
 
+import { DateTimePicker24h } from '@/components/ui/date-picker';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useServerAction } from 'zsa-react';
@@ -113,11 +114,25 @@ export function CreateProjectForm({ onSuccess }: { onSuccess?: () => void }) {
                 <FormItem>
                   <FormLabel>AI Description (Optional)</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Additional context for AI to better understand the project" 
-                      className="min-h-[100px]" 
-                      {...field} 
+                    <Textarea
+                      placeholder="Additional context for AI to better understand the project"
+                      className="min-h-[100px]"
+                      {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="scheduledAt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Scheduled Launch Date</FormLabel>
+                  <FormControl>
+                    <DateTimePicker24h date={field.value || new Date()} setDate={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

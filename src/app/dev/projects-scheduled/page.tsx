@@ -2,11 +2,11 @@ import { ProjectsPageClient } from '@/components/dev/projects/projects-page-clie
 import { db } from '@/db';
 import { projects } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import Link from 'next/link';
+import { Link } from 'lucide-react';
 import { Suspense } from 'react';
 
 async function ProjectsContent() {
-  const data = await db.select().from(projects).where(eq(projects.isLive, true));
+  const data = await db.select().from(projects).where(eq(projects.isScheduled, true));
 
   return <ProjectsPageClient initialData={data} />;
 }

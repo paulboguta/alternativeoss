@@ -36,6 +36,9 @@ export default async function DevLayout({ children }: { children: React.ReactNod
         <Link href="/dev/project-categories" className="text-primary font-medium hover:underline">
           Project-Categories
         </Link>
+        <Link href="/dev/projects-scheduled" className="text-primary font-medium hover:underline">
+          Projects Scheduled
+        </Link>
       </div>
       {children}
     </div>

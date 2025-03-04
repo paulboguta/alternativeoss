@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { categories, projectCategories } from '@/db/schema';
+import { categories, projectCategories, projects } from '@/db/schema';
 import { generateSlug } from '@/utils/slug';
 import { eq, sql } from 'drizzle-orm';
 import { unstable_cacheTag as cacheTag, revalidateTag } from 'next/cache';
@@ -36,12 +36,18 @@ export const getCategoriesWithCount = async ({ limit }: { limit?: number } = {})
       id: categories.id,
       name: categories.name,
       slug: categories.slug,
-      count: sql<number>`count(${projectCategories.projectId})::int`,
+      count: sql<number>`COUNT(CASE WHEN ${projects.isLive} = true THEN ${projectCategories.projectId} END)::int`,
     })
     .from(categories)
     .leftJoin(projectCategories, eq(categories.id, projectCategories.categoryId))
+    .leftJoin(projects, eq(projectCategories.projectId, projects.id))
     .groupBy(categories.id, categories.name, categories.slug)
-    .orderBy(sql`count(${projectCategories.projectId}) desc`);
+    .having(
+      sql`COUNT(CASE WHEN ${projects.isLive} = true THEN ${projectCategories.projectId} END) > 0`
+    )
+    .orderBy(
+      sql`COUNT(CASE WHEN ${projects.isLive} = true THEN ${projectCategories.projectId} END) DESC`
+    );
 
   if (limit) {
     query.limit(limit);

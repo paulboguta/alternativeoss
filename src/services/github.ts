@@ -1,18 +1,15 @@
-import { env } from "@/env";
-import { Octokit } from "octokit";
+import { env } from '@/env';
+import { Octokit } from 'octokit';
 
 const githubClient = new Octokit({ auth: env.GITHUB_TOKEN });
 
 export async function getGitHubStats(repoUrl: string) {
-  const urlParts = repoUrl
-    .replace("https://github.com/", "")
-    .replace(".git", "")
-    .split("/");
+  const urlParts = repoUrl.replace('https://github.com/', '').replace('.git', '').split('/');
 
   const [owner, repo] = urlParts;
 
   if (!owner || !repo) {
-    throw new Error("Invalid repository URL");
+    throw new Error('Invalid repository URL');
   }
 
   const { data } = await githubClient.rest.repos.get({ owner, repo });

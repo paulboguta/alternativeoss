@@ -2,12 +2,9 @@ import {
   checkIfLicenseExists,
   createLicense,
   updateLicenseProjectTable,
-} from "@/data-access/license";
+} from '@/data-access/license';
 
-export const updateLicenseProjectUseCase = async (
-  licenseKey: string,
-  projectId: number
-) => {
+export const updateLicenseProjectUseCase = async (licenseKey: string, projectId: number) => {
   let license = await checkIfLicenseExists(licenseKey);
 
   if (!license) {
@@ -18,7 +15,7 @@ export const updateLicenseProjectUseCase = async (
   }
 
   if (!license) {
-    throw new Error("Failed to create license");
+    throw new Error('Failed to create license');
   }
 
   await updateLicenseProjectTable(license.id, projectId);
