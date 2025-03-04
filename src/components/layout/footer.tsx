@@ -40,7 +40,7 @@ export async function Footer() {
           {trendingProjects.map(project => (
             <Link
               prefetch={false}
-              href={`/projects/${project?.slug}`}
+              href={`/${project?.slug}`}
               key={project?.slug}
               className="hover:bg-muted/30 flex w-fit items-center gap-2 rounded-sm px-2 py-1 text-sm transition-colors"
             >
