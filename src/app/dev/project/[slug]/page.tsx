@@ -5,9 +5,15 @@ import { db } from '@/db';
 import { projects } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
+import { SearchParams } from 'nuqs/server';
 
-export default async function ProjectPage({ params }: { params: { slug: string } }) {
-  const { slug } = await params;
+type PageProps = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<SearchParams>;
+};
+
+export default async function ProjectPage(props: PageProps) {
+  const { slug } = await props.params;
   const projectResults = await db.select().from(projects).where(eq(projects.slug, slug));
 
   if (!projectResults.length) {
