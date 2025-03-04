@@ -10,12 +10,16 @@ import { Button } from '@/components/ui/button';
 import { AD_PLACEMENT } from '@/config/ads';
 import { websiteConfig } from '@/config/website';
 import { cn } from '@/lib/utils';
+import { AnalyticsEvents } from '@/types/analytics';
+import { usePlausible } from 'next-plausible';
 import { AdSpot3 } from '../ads/ad-spot-3';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const plausible = usePlausible<AnalyticsEvents>();
 
   return (
     <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b border-dashed backdrop-blur">
@@ -43,6 +47,21 @@ export function Header() {
               >
                 Categories
               </Link>
+              <button
+                onClick={() =>
+                  plausible('visit-advertising', {
+                    props: { placement: 'header-link' },
+                  })
+                }
+              >
+                <Link
+                  prefetch={false}
+                  href="/advertise"
+                  className="transition-hover text-sm text-white/75 hover:text-white/80"
+                >
+                  Advertise
+                </Link>
+              </button>
             </div>
           </div>
 
@@ -118,6 +137,23 @@ export function Header() {
               >
                 Categories
               </Link>
+              <button
+                onClick={() =>
+                  plausible('visit-advertising', {
+                    props: { placement: 'header-link' },
+                  })
+                }
+                className="w-fit"
+              >
+                <Link
+                  prefetch={false}
+                  href="/advertise"
+                  className="transition-hover py-1 text-sm text-white/75 hover:text-white/80"
+                  onClick={toggleMenu}
+                >
+                  Advertise
+                </Link>
+              </button>
 
               <div className="flex items-center py-2">
                 <Button asChild variant="ghost" size="icon" className="h-8 w-8 fill-white px-0">
