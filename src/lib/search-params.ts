@@ -31,7 +31,7 @@ export const loadSearchParams = createLoader(searchParams);
 export const serialize = createSerializer(searchParams);
 
 // Constants for pagination
-export const ITEMS_PER_PAGE = 15;
+export const ITEMS_PER_PAGE = 14;
 export function getTotalPages(totalItems: number) {
   return Math.ceil(totalItems / ITEMS_PER_PAGE);
 }
