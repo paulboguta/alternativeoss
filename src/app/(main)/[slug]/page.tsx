@@ -1,23 +1,19 @@
-import { RightSidebar } from '@/components/project/left-sidebar';
 import { ProjectContent } from '@/components/project/project-content';
+import { LeftSidebar, RightSidebar } from '@/components/project/sidebars';
 import {
   AlternativesSkeleton,
   CategoriesSkeleton,
   OtherCategoriesSkeleton,
   ProjectStatsSkeleton,
 } from '@/components/project/skeleton-project-page';
-import { getAllProjects, getProject, getProjectSidebarData } from '@/data-access/project';
+import { websiteConfig } from '@/config/website';
+import { getAllProjects, getProject } from '@/data-access/project';
 import { generateProjectJsonLd } from '@/lib/schema';
 import { isValidProjectData } from '@/types/project';
-
-import { OtherCategories } from '@/components/project/other-categories';
-import { ProjectAlternatives } from '@/components/project/project-alternatives';
-import { ProjectCategories } from '@/components/project/project-categories';
-import { websiteConfig } from '@/config/website';
-import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
 import { cache, Suspense } from 'react';
+
 type PageProps = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<SearchParams>;
@@ -111,24 +107,6 @@ const findProject = cache(async (props: PageProps) => {
 
   return project;
 });
-
-async function LeftSidebar({ projectId }: { projectId: number }) {
-  'use cache';
-  cacheTag(`project/${projectId}`);
-  cacheLife('max'); // we revalidate it when updating
-
-  const sidebarData = await getProjectSidebarData(projectId);
-
-  return (
-    <aside className="order-last border-dashed px-8 pt-4 pb-0 md:order-first md:border-r md:pt-0">
-      <div className="space-y-6 pb-8 md:sticky md:top-24">
-        <ProjectAlternatives alternatives={sidebarData.projectAlternatives} />
-        <ProjectCategories categories={sidebarData.projectCategories} />
-        <OtherCategories categories={sidebarData.otherCategories} />
-      </div>
-    </aside>
-  );
-}
 
 export default async function ProjectPage(props: PageProps) {
   const project = await findProject(props);

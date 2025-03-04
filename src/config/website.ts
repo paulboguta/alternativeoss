@@ -11,6 +11,7 @@ export type WebsiteConfig = {
     twitterPawel: string;
     ogImage: string;
   };
+  email: string;
 };
 
 export const websiteConfig: WebsiteConfig = {
@@ -24,6 +25,7 @@ export const websiteConfig: WebsiteConfig = {
     twitterPawel: 'https://x.com/pawelboguta',
     ogImage: 'https://cdn.alternativeoss.com/assets/og-image.jpg',
   },
+  email: 'contact@alternativeoss.com',
 };
 
 export const metadata: Metadata = {

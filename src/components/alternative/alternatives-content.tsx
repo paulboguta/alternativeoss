@@ -6,6 +6,8 @@ import { getAlternativesUseCase } from '@/use-cases/alternative';
 import { SearchParams } from 'nuqs/server';
 
 import { Pagination } from '@/components/pagination';
+import { AD_PLACEMENT } from '@/config/ads';
+import { AdSpot2 } from '../ads/ad-spot-2';
 import { AlternativeCard } from './alternative-card';
 
 export async function AlternativesContent({ searchParams }: { searchParams: SearchParams }) {
@@ -24,6 +26,14 @@ export async function AlternativesContent({ searchParams }: { searchParams: Sear
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <AdSpot2
+          adMetadata={{
+            placement: 'alternatives',
+            adName: AD_PLACEMENT.name,
+            adVersion: AD_PLACEMENT.version,
+          }}
+        />
+
         {alternatives.length > 0 ? (
           alternatives.map(alternative => (
             <AlternativeCard

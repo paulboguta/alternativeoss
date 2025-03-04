@@ -11,7 +11,7 @@ type ProjectStatsProps = {
 
 export function ProjectStats({ stars, forks, lastCommit, license }: ProjectStatsProps) {
   return (
-    <div className="bg-card/50 rounded-lg border px-6 py-4">
+    <div className="bg-card/50 rounded-lg border p-4">
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Star className="text-muted-foreground h-4 w-4" />

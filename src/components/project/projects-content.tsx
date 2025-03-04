@@ -2,8 +2,10 @@ import { getProjectsUseCase } from '@/use-cases/project';
 
 import { ITEMS_PER_PAGE, loadSearchParams } from '@/lib/search-params';
 
+import { AD_PLACEMENT } from '@/config/ads';
 import { DEFAULT_SORT_PROJECTS } from '@/config/sorting';
 import { SearchParams } from 'nuqs/server';
+import { AdSpot2 } from '../ads/ad-spot-2';
 import { Pagination } from '../pagination';
 import { ProjectCard } from './project-card';
 
@@ -25,6 +27,14 @@ export async function ProjectsContent({ searchParams }: { searchParams: SearchPa
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <AdSpot2
+          adMetadata={{
+            placement: 'projects',
+            adName: AD_PLACEMENT.name,
+            adVersion: AD_PLACEMENT.version,
+          }}
+        />
+
         {paginatedProjects.length > 0 ? (
           paginatedProjects.map(project => (
             <ProjectCard
@@ -39,20 +49,16 @@ export async function ProjectsContent({ searchParams }: { searchParams: SearchPa
             />
           ))
         ) : (
-          <div className="col-span-3 py-8 text-center">
+          <div className="col-span-2 py-8 text-center">
             <h3 className="text-muted-foreground text-lg font-medium">No projects found</h3>
-            <p className="text-muted-foreground">
-              {q
-                ? `No projects match your search for "${q}"`
-                : 'No projects available at this time'}
-            </p>
+            <p className="text-muted-foreground mt-1">Try adjusting your search or filters</p>
           </div>
         )}
       </div>
 
       {pagination.totalPages > 1 && (
         <div className="mt-8 flex justify-center">
-          <Pagination totalPages={pagination.totalPages} />
+          <Pagination {...pagination} />
         </div>
       )}
     </>
