@@ -1,4 +1,5 @@
 'use client';
+import { cn } from '@/lib/utils';
 import { AnalyticsEvents } from '@/types/analytics';
 import { usePlausible } from 'next-plausible';
 import { Button } from '../ui/button';
@@ -47,7 +48,7 @@ export function ClickAdButton({
 
   return (
     <button
-      className={className}
+      className={cn(className, 'w-fit text-start')}
       onClick={() =>
         plausible(eventType, {
           props: eventPayload,
