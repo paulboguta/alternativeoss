@@ -59,8 +59,8 @@ export type PricingCardData = {
 export const PRICING_CARDS: PricingCardData[] = [
   {
     title: 'Ad Spot 1',
-    price: '$3',
-    originalPrice: '$12',
+    price: '$5',
+    originalPrice: '$15',
     period: 'per day',
     description: 'Featured on all project pages',
     features: [
@@ -73,8 +73,8 @@ export const PRICING_CARDS: PricingCardData[] = [
   },
   {
     title: 'Ad Spot 2',
-    price: '$8',
-    originalPrice: '$24',
+    price: '$10',
+    originalPrice: '$30',
     period: 'per day',
     description: 'Placement on the main page',
     features: [
@@ -82,7 +82,7 @@ export const PRICING_CARDS: PricingCardData[] = [
       'High-traffic visibility',
       'Featured on the alternatives',
     ],
-    availableSpots: 1,
+    availableSpots: 5,
     demoLink: '/advertise/ad-spot-2',
   },
   {
