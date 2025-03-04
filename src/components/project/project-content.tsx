@@ -74,14 +74,14 @@ function ProjectHeader({
       </div>
       <div className="flex gap-4">
         <Button className="group" variant="secondary" asChild>
-          <Link href={buildProjectUrl({ url, name })} target="_blank" rel="noopener noreferrer">
+          <a href={buildProjectUrl({ url, name })} target="_blank" rel="noopener noreferrer">
             Visit {name}
             <ArrowRightIcon
               className="-me-1 opacity-60 transition-transform group-hover:translate-x-0.5"
               size={16}
               aria-hidden="true"
             />
-          </Link>
+          </a>
         </Button>
         {/* Mobile only */}
         <Button variant="outline" asChild className="lg:hidden">
