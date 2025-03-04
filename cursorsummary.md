@@ -6,26 +6,45 @@
 AlternativeOSS is a Next.js application built with modern web technologies, focusing on performance, type safety, and best practices.
 
 ## Tech Stack
-- **Framework**: Next.js 14 with App Router
+- **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript
 - **Package Manager**: pnpm
 - **UI Components**: Shadcn UI + Radix UI
-- **Styling**: Tailwind CSS
+- **Styling**: Tailwind CSS 4
 - **Database ORM**: Drizzle
 - **Form Validation**: Zod
 - **Server Actions**: zsa-react
 - **URL State Management**: nuqs
+- **AI Integration**: Anthropic Claude
+- **Analytics**: Plausible
+- **Rate Limiting**: Upstash
+- **Background Jobs**: Inngest
 
 ## Project Structure
 
 ```
 src/
-├── app/           # Next.js App Router pages and layouts
-├── components/    # Reusable UI components
-├── config/        # Application configuration
-├── db/           # Database schema and migrations
-├── lib/          # Utility functions and shared logic
-└── services/     # External service integrations
+├── actions/        # Server actions
+├── ai/             # AI integration components and utilities
+├── app/            # Next.js App Router pages and layouts
+│   ├── (main)/     # Main application routes
+│   │   ├── alternatives/  # Alternatives listing and details
+│   │   ├── categories/    # Category listing and details
+│   │   ├── [slug]/        # Dynamic project routes
+│   │   └── submit/        # Project submission form
+│   ├── api/         # API routes
+│   └── dev/         # Dev/Admin pages
+├── components/      # Reusable UI components
+├── config/          # Application configuration
+├── data-access/     # Data access layer for database operations
+├── db/              # Database schema and migrations
+├── functions/       # Utility functions
+├── hooks/           # React hooks
+├── lib/             # Utility functions and shared logic
+├── services/        # External service integrations
+├── types/           # TypeScript type definitions
+├── use-cases/       # Business logic and use cases
+└── utils/           # General utility functions
 ```
 
 ## Key Features and Conventions
@@ -33,6 +52,8 @@ src/
    - Server-first approach with React Server Components (RSC)
    - Minimal client-side JavaScript
    - Type-safe database operations with Drizzle ORM
+   - Architecture filters for data filtering and search
+   - Separation of concerns with data-access and use-cases layers
 
 2. **Code Style**
    - Functional programming patterns
@@ -45,6 +66,8 @@ src/
    - Dynamic imports for client components
    - Suspense boundaries for loading states
    - Image optimization with Next.js
+   - Partial Prerendering (PPR) enabled
+   - Aggressive caching strategies
 
 4. **Development Guidelines**
    - Mobile-first responsive design
@@ -83,11 +106,19 @@ src/
    - Lazy loading
    - Image optimization
    - Efficient bundling
+   - Turbopack for development
 
 4. **Type Safety**
    - Strict TypeScript usage
    - Zod schema validation
    - Type-safe API routes
    - ORM type safety
+
+5. **Architecture Filters**
+   - Implemented in data-access layer
+   - Support for complex search queries
+   - Pagination and sorting
+   - Filter by categories, licenses, and other attributes
+   - Optimized database queries
 
 This project follows modern web development best practices, emphasizing type safety, performance, and maintainable code structure.
